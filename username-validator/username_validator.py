@@ -1,6 +1,8 @@
 import config
 import re
 import requests
+import mysql.connector
+from mysql.connector import errors
 
 s = requests.session()
 
@@ -26,6 +28,33 @@ r = s.post(action, data={
     'RelayState': relay_state,
 })
 
-r = s.get('https://feedback.netlight.com/api/employees/kber')
+try:
+    accounts_db = mysql.connector.connect(
+        host = config.mysql_host,
+        user = config.mysql_username,
+        password = config.mysql_password,
+        database = config.mysql_database,
+    )
+    cursor = accounts_db.cursor()
+    cursor.execute('SELECT username FROM accounts')
 
+    myresult = cursor.fetchall()
+
+    for (username, ) in myresult:
+        short_username = username.split('@')[0]
+        r = s.get('https://feedback.netlight.com/api/employees/' +  short_username)
+        if r.status_code == 404:
+            cursor.execute(
+            "UPDATE accounts SET isRemoved = true WHERE username = %s",
+            [username]
+            )
+            accounts_db.commit()  
+
+except errors.PoolError as e:
+    print(e)
+    print('Closing accounts db  connection')
+
+r = s.get('https://feedback.netlight.com/api/employees/' +  'erka')
 print(r.json())
+
+accounts_db.close()
