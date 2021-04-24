@@ -30,31 +30,40 @@ r = s.post(action, data={
 
 try:
     accounts_db = mysql.connector.connect(
-        host = config.mysql_host,
-        user = config.mysql_username,
-        password = config.mysql_password,
-        database = config.mysql_database,
+        host=config.mysql_host,
+        user=config.mysql_username,
+        password=config.mysql_password,
+        database=config.mysql_database,
     )
+
     cursor = accounts_db.cursor()
-    cursor.execute('SELECT username FROM accounts')
+    cursor.execute(
+        '''
+        SELECT `id`
+        FROM accounts
+        '''
+    )
 
     myresult = cursor.fetchall()
 
-    for (username, ) in myresult:
-        short_username = username.split('@')[0]
-        r = s.get('https://feedback.netlight.com/api/employees/' +  short_username)
+    for (user_id, ) in myresult:
+        short_username = user_id.split('@')[0]
+
+        r = s.get('https://feedback.netlight.com/api/employees/' + short_username)
+
         if r.status_code == 404:
             cursor.execute(
-            "UPDATE accounts SET isRemoved = true WHERE username = %s",
-            [username]
+                '''
+                UPDATE `account` SET `isRemoved` = true
+                WHERE `id` = %s
+                ''',
+                [user_id]
             )
-            accounts_db.commit()  
+
+    accounts_db.commit()
 
 except errors.PoolError as e:
     print(e)
-    print('Closing accounts db  connection')
-
-r = s.get('https://feedback.netlight.com/api/employees/' +  'erka')
-print(r.json())
+    print('Closing accounts db connection')
 
 accounts_db.close()
