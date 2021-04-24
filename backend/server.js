@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 const passport = require('passport')
 const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
 
+const common = require('./common')
 const config = require('./config')
 
 const pool = mysql.createPool({
@@ -43,26 +44,6 @@ const findByOid = oid => {
 	}
 
 	return null
-}
-
-const randomString = (length = 8) => {
-  var result = ''
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  var charactersLength = characters.length
-
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-
-  return result
-}
-
-const duration2itunes = duration => {
-	const hours = Math.floor(duration / 3600).toString()
-	const minutes = Math.floor((duration % 3600) / 60).toString()
-	const seconds = Math.floor(((duration % 3600) % 60) / 60).toString()
-
-	return hours.padStart(2, '0') + ':' + minutes.padStart(2, '0') + ':' + seconds.padStart(2, '0')
 }
 
 const strategyConfig = {
@@ -122,8 +103,6 @@ app.use(passport.session())
 
 var httpServer = http.createServer(app)
 
-const getTimestamp = () => Math.floor(Date.now() / 1000)
-
 app.use(express.json())
 
 app.get('/login', (req, res, next) => {
@@ -145,7 +124,7 @@ const handleReturn = (req, res, next) => {
 }
 
 const handleSuccessfulAuthentication = async (req, res) => {
-	const timestamp = getTimestamp()
+	const timestamp = common.getTimestamp()
 
 	await pool.query(
 		'INSERT INTO `account` (`id`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`, `isRemoved`) \
@@ -297,7 +276,7 @@ app.post('/api/admin/podcasts/:id/episodes', async (req, res) => {
 		return
 	}
 
-	const id = randomString()
+	const id = common.randomString()
 
 	await pool.query(
 		'INSERT INTO `podcastEpisode` (`id`, `podcast`, `title`, `isVisible`) \
@@ -345,7 +324,7 @@ const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 	const podcast = podcasts[0]
 
 	if (podcast.token === null) {
-		podcast.token = randomString(32)
+		podcast.token = common.randomString(32)
 
 		await pool.query(
 			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
@@ -363,7 +342,7 @@ const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 				`published` \
 			FROM `podcastEpisode` \
 			WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
-			[podcast.id, getTimestamp(), true]
+			[podcast.id, common.getTimestamp(), true]
 		)
 
 		podcast.episodes = episodes
@@ -415,7 +394,7 @@ app.patch('/api/podcasts/:slug', async (req, res) => {
 			[true, podcast.id, username]
 		)
 
-		podcast.token = randomString(32)
+		podcast.token = common.randomString(32)
 
 		await pool.query(
 			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
@@ -469,7 +448,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`published` \
 		FROM `podcastEpisode` \
 		WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
-		[podcast.id, getTimestamp(), true]
+		[podcast.id, common.getTimestamp(), true]
 	)
 
 	podcast.episodes = episodes
@@ -503,7 +482,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 		rssLines.push('<enclosure url="https://podcasts.netlight.com/audio/' + token + '/' + episode.slug + '" type="audio/mpeg" length="' + episode.fileSize + '"></enclosure>')
 		rssLines.push('<pubDate>' + (new Date(episode.published * 1000)).toUTCString() + '</pubDate>')
 		rssLines.push('<itunes:author>Netlight Podcasts</itunes:author>')
-		rssLines.push('<itunes:duration>' + duration2itunes(episode.duration) + '</itunes:duration>')
+		rssLines.push('<itunes:duration>' + common.duration2itunes(episode.duration) + '</itunes:duration>')
 		rssLines.push('<itunes:explicit>no</itunes:explicit>')
 		rssLines.push('<guid>https://podcasts.netlight.com/' + podcast.slug + '/' + episode.slug + '</guid>')
 		rssLines.push('</item> ')
@@ -533,7 +512,7 @@ app.get('/audio/:token/:slug', async (req, res) => {
 			`fileSize` \
 		FROM`podcastEpisode` \
 		WHERE `slug` = ? AND `podcast` = ? AND `isVisible` = ? AND `published` IS NOT NULL AND `published` < ?',
-		[req.params.slug, podcast.id, true, getTimestamp()]
+		[req.params.slug, podcast.id, true, common.getTimestamp()]
 	)
 
 	if (episodes.length !== 1) {
