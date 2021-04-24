@@ -12,14 +12,14 @@ const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
 const common = require('./common')
 const config = require('./config')
 
-const pool = mysql.createPool({
+exports.pool = mysql.createPool({
 	host: config.mysql.host,
 	user: config.mysql.username,
 	password: config.mysql.password,
 	database: config.mysql.database,
 	waitForConnections: true,
 	connectionLimit: 10,
-	queueLimit: 0
+	queueLimit: 0,
 })
 
 passport.serializeUser((user, done) => {
@@ -126,7 +126,7 @@ const handleReturn = (req, res, next) => {
 const handleSuccessfulAuthentication = async (req, res) => {
 	const timestamp = common.getTimestamp()
 
-	await pool.query(
+	await this.pool.query(
 		'INSERT INTO `account` (`id`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`, `isRemoved`) \
 		VALUES(?, ?, ?, ?, ?, ?) \
 		ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`), `isRemoved` = VALUES(`isRemoved`)',
@@ -150,7 +150,7 @@ app.get('/api/me', async (req, res) => {
 	if (!req.isAuthenticated()) {
 		res.json(null)
 	} else {
-		const account = (await pool.query(
+		const account = (await this.pool.query(
 			'SELECT * \
 			FROM `account` \
 			WHERE `id` = ?',
@@ -170,245 +170,11 @@ app.delete('/api/me', (req, res) => {
 	res.status(204).end()
 })
 
-app.get('/api/admin/podcasts', async (req, res) => {
-	const [podcasts] = await pool.query(
-		'SELECT \
-			`id`, \
-			`slug`, \
-			`title`, \
-			`description`, \
-			`isVisible` \
-		FROM `podcast`'
-	)
-
-	for (const podcast of podcasts) {
-		podcast.isVisible = podcast.isVisible === 1
-	}
-
-	res.json(podcasts)
-})
-
-app.get('/api/admin/podcasts/:id', async (req, res) => {
-	const [podcasts] = await pool.query(
-		'SELECT \
-			`id`, \
-			`slug`, \
-			`title`, \
-			`description`, \
-			`isVisible` \
-		FROM `podcast`'
-	)
-
-	if (podcasts.length !== 1) {
-		res.status(404).end()
-		return
-	}
-
-	const podcast = podcasts[0]
-
-	podcast.isVisible = podcast.isVisible === 1
-
-	res.json(podcast)
-})
-
-app.get('/api/admin/podcasts/:id/episodes', async (req, res) => {
-	const [podcasts] = await pool.query(
-		'SELECT `id` \
-		FROM `podcast`'
-	)
-
-	if (podcasts.length !== 1) {
-		res.status(404).end()
-		return
-	}
-
-	const podcast = podcasts[0]
-
-	const [episodes] = await pool.query(
-		'SELECT \
-			`id`, \
-			`slug`, \
-			`title`, \
-			`description`, \
-			`duration`, \
-			`fileName`, \
-			`fileSize`, \
-			`published`, \
-			`isVisible` \
-		FROM `podcastEpisode` \
-		WHERE `podcast` = ?',
-		[podcast.id]
-	)
-
-	for (const episode of episodes) {
-		episode.isVisible = episode.isVisible === 1
-	}
-
-	res.json(episodes)
-})
-
-app.post('/api/admin/podcasts/:id/episodes', async (req, res) => {
-	const [podcasts] = await pool.query(
-		'SELECT `id` \
-		FROM `podcast` \
-		WHERE `id` = ?',
-		[req.params.id]
-	)
-
-	if (podcasts.length !== 1) {
-		res.status(404).end()
-		return
-	}
-
-	const podcast = podcasts[0]
-
-	let title = req.body.title
-
-	if (typeof title !== 'string') {
-		res.stauts(400).end()
-		return
-	}
-
-	title = title.trim()
-
-	if (title.length === 0 || title.length > 100) {
-		res.status(400).json('The title is invalid')
-		return
-	}
-
-	const id = common.randomString()
-
-	await pool.query(
-		'INSERT INTO `podcastEpisode` (`id`, `podcast`, `title`, `isVisible`) \
-		VALUES(?, ?, ?, ?)',
-		[id, podcast.id, title, false]
-	)
-
-	res.status(201).json({
-		id,
-	})
-})
-
-app.get('/api/podcasts', async (req, res) => {
-	const [podcasts] = await pool.query(
-		'SELECT \
-			`slug`, \
-			`title`, \
-			`description` \
-		FROM `podcast` \
-		WHERE `isVisible` = ?',
-		[true]
-	)
-
-	res.json(podcasts)
-})
-
-const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
-	const [podcasts] = await pool.query(
-		'SELECT \
-			`podcast`.`id`, \
-			`podcast`.`slug`, \
-			`podcast`.`title`, \
-			`podcast`.`description`, \
-			`podcastToken`.`token` \
-		FROM `podcast` \
-		LEFT JOIN `podcastToken` ON `podcastToken`.`account` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcastToken`.`isRemoved` = ? \
-		WHERE `slug` = ? AND `isVisible` = ?',
-		[username, false, slug, true]
-	)
-
-	if (podcasts.length !== 1) {
-		return null
-	}
-
-	const podcast = podcasts[0]
-
-	if (podcast.token === null) {
-		podcast.token = common.randomString(32)
-
-		await pool.query(
-			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
-			[podcast.token, username, podcast.id, false]
-		)
-	}
-
-	if (withEpisodes) {
-		const [episodes] = await pool.query(
-			'SELECT \
-				`slug`, \
-				`title`, \
-				`description`, \
-				`duration`, \
-				`published` \
-			FROM `podcastEpisode` \
-			WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
-			[podcast.id, common.getTimestamp(), true]
-		)
-
-		podcast.episodes = episodes
-	}
-	
-	return podcast
-}
-
-app.get('/api/podcasts/:slug', async (req, res) => {
-	if (!req.user) {
-		res.status(403).end()
-		return
-	}
-
-	const slug = req.params.slug
-	const username = req.user._json.preferred_username
-	const podcast = await getPodcastBySlug(slug, username)
-
-	if (podcast === null) {
-		res.status(404).end()
-		return
-	}
-
-	delete podcast.id
-	
-	res.json(podcast)
-})
-
-app.patch('/api/podcasts/:slug', async (req, res) => {
-	if (!req.user) {
-		res.status(403).end()
-		return
-	}
-
-	const slug = req.params.slug
-	const username = req.user._json.preferred_username
-	const podcast = await getPodcastBySlug(slug, username)
-
-	if (podcast === null) {
-		res.status(404).end()
-		return
-	}
-
-	if (req.body.token === null) {
-		await pool.query(
-			'UPDATE `podcastToken` \
-			SET `isRemoved` = ? \
-			WHERE `podcast` = ? AND `account` = ?',
-			[true, podcast.id, username]
-		)
-
-		podcast.token = common.randomString(32)
-
-		await pool.query(
-			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
-			[podcast.token, username, podcast.id, false]
-		)
-	}
-
-	delete podcast.id
-
-	res.json(podcast)
-})
+app.use('/api/admin', require('./rest/admin'))
+app.use('/api/podcasts', require('./rest/podcasts'))
 
 const getPodcastByToken = async token => {
-	const [podcasts] = await pool.query(
+	const [podcasts] = await this.pool.query(
 		'SELECT \
 			`podcast`.`id`, \
 			`podcast`.`slug`, \
@@ -437,7 +203,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 		return
 	}
 
-	const [episodes] = await pool.query(
+	const [episodes] = await this.pool.query(
 		'SELECT \
 			`slug`, \
 			`title`, \
@@ -504,7 +270,7 @@ app.get('/audio/:token/:slug', async (req, res) => {
 		return
 	}
 
-	const [episodes] = await pool.query(
+	const [episodes] = await this.pool.query(
 		'SELECT \
 			`title`, \
 			`fileContent`, \
