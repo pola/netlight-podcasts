@@ -150,8 +150,10 @@ const handleSuccessfulAuthentication = async (req, res) => {
 	const timestamp = getTimestamp()
 
 	await pool.query(
-		'INSERT INTO `accounts` (`username`, `name`, `timestampRegistered`, `timestampSeen`) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`)',
-		[req.user._json.preferred_username, req.user.displayName, timestamp, timestamp]
+		'INSERT INTO `accounts` (`username`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`) \
+		VALUES(?, ?, ?, ?, ?) \
+		ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`)',
+		[req.user._json.preferred_username, req.user.displayName, timestamp, timestamp, false]
 	)
 
 	res.redirect(req.body.state)
@@ -167,13 +169,21 @@ app.get('/logout', (req, res) => {
 	})
 })
 
-app.get('/api/me', (req, res) => {
+app.get('/api/me', async (req, res) => {
 	if (!req.isAuthenticated()) {
 		res.json(null)
 	} else {
+		const account = (await pool.query(
+			'SELECT * \
+			FROM `accounts` \
+			WHERE `username` = ?',
+			[req.user._json.preferred_username]
+		))[0][0]
+
 		res.json({
 			'name': req.user.displayName,
 			'username': req.user._json.preferred_username,
+			'isAdmin': account.isAdmin === 1,
 		})
 	}
 })

@@ -5,7 +5,13 @@
         <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">Sign in</a>
       </template>
       <template v-else>
-        Hello {{ $store.state.user.name }} | <a @click="signOut">Sign out</a>
+        Hello {{ $store.state.user.name }}
+        <template v-if="$store.state.user.isAdmin">
+          | <router-link to="/admin">
+            Administration
+          </router-link>
+        </template>
+        | <a @click="signOut">Sign out</a>
       </template>
     </div>
 
