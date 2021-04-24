@@ -7,3 +7,6 @@ backend/config.js
 username-validator/config.py
 frontend/dist
 nginx.conf
+.DS_Store
+.idea
+
