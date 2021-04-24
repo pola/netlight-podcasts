@@ -4,5 +4,6 @@ node_modules
 cert
 logs
 backend/config.js
+username-validator/config.py
 frontend/dist
 nginx.conf
