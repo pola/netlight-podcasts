@@ -3,6 +3,7 @@
 const express = require('express')
 const router = express.Router()
 
+const log = require('../log')
 const common = require('../common')
 const server = require('../server')
 
@@ -81,11 +82,13 @@ router.get('/:slug', async (req, res) => {
 	if (podcast === null) {
 		res.status(404).end()
 		return
-	}
+  }
 
-	delete podcast.id
+  log.savePodcastVisit(req, podcast.id)
+
+  delete podcast.id
 	
-	res.json(podcast)
+  res.json(podcast)
 })
 
 router.patch('/:slug', async (req, res) => {

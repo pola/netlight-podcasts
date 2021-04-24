@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 const passport = require('passport')
 const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
 
+const log = require('./log')
 const common = require('./common')
 const config = require('./config')
 
@@ -280,6 +281,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 	
 	res.set('content-type', 'text/xml')
 	res.send(rssLines.join('\n'))
+
+	log.savePodcastTokenRss(req, token)
 })
 
 app.get('/audio/:token/:slug', async (req, res) => {
@@ -293,6 +296,7 @@ app.get('/audio/:token/:slug', async (req, res) => {
 
 	const [episodes] = await this.pool.query(
 		'SELECT \
+			`id`, \
 			`title`, \
 			`fileContent`, \
 			`fileMimeType`, \
@@ -316,6 +320,8 @@ app.get('/audio/:token/:slug', async (req, res) => {
 	})
 
 	res.end(episode.fileContent)
+
+	log.savePodcastTokenAudio(req, token, episode.id)
 })
 
 const start = async () => {
