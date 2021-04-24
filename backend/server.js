@@ -428,9 +428,7 @@ app.patch('/api/podcasts/:slug', async (req, res) => {
 	res.json(podcast)
 })
 
-app.get('/rss/:token.xml', async (req, res) => {
-	const token = req.params.token
-
+const getPodcastByToken = async token => {
 	const [podcasts] = await pool.query(
 		'SELECT \
 			`podcast`.`id`, \
@@ -448,7 +446,17 @@ app.get('/rss/:token.xml', async (req, res) => {
 		return
 	}
 
-	const podcast = podcasts[0]
+	return podcasts[0]
+}
+
+app.get('/rss/:token.xml', async (req, res) => {
+	const token = req.params.token
+	const podcast = await getPodcastByToken(token)
+
+	if (podcast === null) {
+		res.status(404).end()
+		return
+	}
 
 	const [episodes] = await pool.query(
 		'SELECT \
@@ -492,7 +500,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 		rssLines.push('<itunes:summary>' + episode.description + '</itunes:summary>')
 		rssLines.push('<description>' + episode.description + '</description>')
 		rssLines.push('<link>https://podcasts.netlight.com/' + podcast.slug + '/' + episode.slug + '</link>')
-		rssLines.push('<enclosure url="' + episode.fileName + '" type="audio/mpeg" length="' + episode.fileSize + '"></enclosure>')
+		rssLines.push('<enclosure url="https://podcasts.netlight.com/audio/' + token + '/' + episode.slug + '" type="audio/mpeg" length="' + episode.fileSize + '"></enclosure>')
 		rssLines.push('<pubDate>' + (new Date(episode.published * 1000)).toUTCString() + '</pubDate>')
 		rssLines.push('<itunes:author>Netlight Podcasts</itunes:author>')
 		rssLines.push('<itunes:duration>' + duration2itunes(episode.duration) + '</itunes:duration>')
@@ -506,6 +514,42 @@ app.get('/rss/:token.xml', async (req, res) => {
 	
 	res.set('content-type', 'text/xml')
 	res.send(rssLines.join('\n'))
+})
+
+app.get('/audio/:token/:slug', async (req, res) => {
+	const token = req.params.token
+	const podcast = await getPodcastByToken(token)
+
+	if (podcast === null) {
+		res.status(404).end()
+		return
+	}
+
+	const [episodes] = await pool.query(
+		'SELECT \
+			`title`, \
+			`fileContent`, \
+			`fileMimeType`, \
+			`fileSize` \
+		FROM`podcastEpisode` \
+		WHERE `slug` = ? AND `podcast` = ? AND `isVisible` = ? AND `published` IS NOT NULL AND `published` < ?',
+		[req.params.slug, podcast.id, true, getTimestamp()]
+	)
+
+	if (episodes.length !== 1) {
+		res.status(404).end()
+		return
+	}
+
+	const episode = episodes[0]
+
+	res.writeHead(200, {
+		'content-disposition': 'attachment; filename="episode"',
+		'content-type': episode.fileMimeType,
+		'content-length': episode.fileSize,
+	})
+
+	res.end(episode.fileContent)
 })
 
 const start = async () => {
