@@ -5,15 +5,15 @@ import AdministrationView from '../views/Administration'
 
 Vue.use(VueRouter)
 
-const ROUTENAMES = {
+export const ROUTE_NAMES = {
   SINGLE: 'single',
   ADMIN: 'admin'
 }
 
 const routes = [
-  { path: '/', redirect: { name: ROUTENAMES.SINGLE,  params: { slug: 'a-demo-podcast' }}},
-  { path: '/:slug', component: PodcastSingleView, name: ROUTENAMES.SINGLE },
-  { path: '/admin', component: AdministrationView, name: ROUTENAMES.ADMIN },
+  { path: '/', redirect: { name: ROUTE_NAMES.SINGLE,  params: { slug: 'a-demo-podcast' }}},
+  { path: '/:slug', component: PodcastSingleView, name: ROUTE_NAMES.SINGLE },
+  { path: '/admin', component: AdministrationView, name: ROUTE_NAMES.ADMIN },
 ]
 
 const router = new VueRouter({
