@@ -13,7 +13,7 @@
       tag="img"
       to="/"
       src="/images/logo.svg"
-      alt="Netlight Live"
+      alt="Netlight Podcasts"
       class="logo"
     />
 
@@ -92,15 +92,6 @@ export default {
   .content {
     padding: 1em;
   }
-		
-	#interaction > input {
-		text-align: left;
-	}
-
-	.stream {
-		margin-left: -1.5em;
-		margin-right: -1.5em;
-	}
 
   .userBar {
     left: 0;

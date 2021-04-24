@@ -1,36 +1,17 @@
 <template>
-  <div>
-    <template v-if="streams !== null">
-      <p v-if="streams.length === 0">
-        There are currently no planned upcoming live streams.
-      </p>
+  <div v-if="podcasts !== null">
+    <h1>Podcasts</h1>
 
-      <router-link
-        :to="'/' + stream.slug"
-        tag="div"
-        class="stream"
-        v-for="stream in streams"
-        :key="stream.slug"
-      >
-        <h2>{{ stream.title }}</h2>
-        <h3>{{ stream.start | moment('llll') }}</h3>
-      </router-link>
-    </template>
-
-    <template v-else-if="error">
-      <p>
-        This list of live streams could not be loaded. Please try again.
-      </p>
-    </template>
-
-    <p class="contact">
-      <a
-        href="https://netlight.slack.com/archives/DJSTMGW1G"
-        target="_blank"
-      >
-        Contact
-      </a>
-    </p>
+    <router-link
+      :to="'/' + podcast.slug"
+      tag="div"
+      class="podcast"
+      v-for="podcast in podcasts"
+      :key="podcast.slug"
+    >
+      <h2>{{ podcast.title }}</h2>
+      <h3>{{ podcast.description }}</h3>
+    </router-link>
   </div>
 </template>
 
@@ -41,18 +22,13 @@ export default {
   name: 'ListView',
   
   data: () => ({
-    streams: null,
-    error: false,
+    podcasts: null,
   }),
 
   async created() {
-    try {
-      const streams = (await axios.get('/streams')).data
-      streams.sort((a, b) => a.start - b.start)
-      this.streams = streams
-    } catch {
-      this.error = true
-    }
+    const podcasts = (await axios.get('/podcasts')).data
+    podcasts.sort((a, b) => a.title.localeCompare(b.title))
+    this.podcasts = podcasts
   },
 }
 </script>
@@ -62,19 +38,19 @@ p {
   text-align: center;
 }
 
-.stream {
+.podcast {
 	padding: 1em 2em;
 	margin: 0.5em -2em 0;
 }
 
-.stream:hover {
+.podcast:hover {
 	background-color: rgba(166, 162, 220, 0.7);
 	cursor: pointer;
 }
 
 @media only screen and (max-width: 768px)
 {
-	.stream {
+	.podcast {
 		margin-left: -1.5em;
 		margin-right: -1.5em;
 	}

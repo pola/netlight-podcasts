@@ -1,17 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ListView from '../views/List.vue'
-import StreamView from '../views/Stream.vue'
-import PodcastListView from '../views/podcast/List.vue'
-import PodcastSingleView from '../views/podcast/Single.vue'
+import PodcastListView from '../views/List.vue'
+import PodcastSingleView from '../views/Single.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', component: ListView },
-  { path: '/podcasts', component: PodcastListView },
-  { path: '/podcasts/:slug', component: PodcastSingleView },
-  { path: '/:slug', component: StreamView },
+  { path: '/', component: PodcastListView },
+  { path: '/:slug', component: PodcastSingleView },
 ]
 
 const router = new VueRouter({

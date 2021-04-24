@@ -15,7 +15,7 @@
 
     <input
       type="text"
-      :value="'https://live.netlight.com/rss/' + podcast.token + '.xml'"
+      :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
       @focus="e => e.target.select()"
       readonly
     />
@@ -51,7 +51,7 @@ export default {
   }),
 
   async created() {
-    this.podcast = (await axios.get('/podcasts/' + this.$route.params.slug)).data
+    this.podcast = (await axios.get('/' + this.$route.params.slug)).data
     this.podcast.episodes.sort((a, b) => a.published - b.published)
   },
 }

@@ -9,7 +9,6 @@ module.exports = {
 		ip: '127.0.0.1',
 		port: 8989,
 	},
-	slackToken: '',
 	creds: {
 		identityMetadata: '<ADD VALUE HERE>',
 		clientID: '<ADD VALUE HERE>',
