@@ -170,7 +170,28 @@ app.delete('/api/me', (req, res) => {
 	res.status(204).end()
 })
 
-app.use('/api/admin', require('./rest/admin'))
+const requireAdmin = async (req, res, next) => {
+	if (!req.isAuthenticated()) {
+		res.status(403).end()
+		return
+	}
+
+	const [accounts] = await this.pool.query(
+		'SELECT * \
+		FROM `account` \
+		WHERE `id` = ? AND `isAdmin` = ?',
+		[req.user._json.preferred_username, true]
+	)
+
+	if (accounts.length !== 1) {
+		res.status(403).end()
+		return
+	}
+
+	next()
+}
+
+app.use('/api/admin', requireAdmin, require('./rest/admin'))
 app.use('/api/podcasts', require('./rest/podcasts'))
 
 const getPodcastByToken = async token => {
