@@ -6,7 +6,7 @@
         <NavBarItem
           v-if="user.isAdmin"
           title="Upload Episode"
-          @click="goToAdmin"
+          @click="goToUpload"
         />
         <NavBarItem
           v-if="user.isAdmin"
@@ -43,8 +43,8 @@ name: 'NavBar',
       await axios.delete('/me')
       this.$store.commit('setUser', null)
     },
-    goToAdmin() {
-      this.$router.push({name: ROUTE_NAMES.ADMIN})
+    goToUpload() {
+      this.$router.push({name: ROUTE_NAMES.UPLOAD, params: { slug: 'a-demo-podcast' }})
     },
     goToEpisodes() {
       this.$router.push({name: ROUTE_NAMES.SINGLE, params: { slug: 'a-demo-podcast' }})

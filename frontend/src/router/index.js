@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import PodcastSingleView from '../views/PodcastSingle.vue'
-import AdministrationView from '../views/Administration'
+import UploadNewEpisodeView from '../views/NewEpisode.vue'
 
 Vue.use(VueRouter)
 
 export const ROUTE_NAMES = {
   SINGLE: 'single',
-  ADMIN: 'admin'
+  UPLOAD: 'upload'
 }
 
 const routes = [
   { path: '/', redirect: { name: ROUTE_NAMES.SINGLE,  params: { slug: 'a-demo-podcast' }}},
   { path: '/:slug', component: PodcastSingleView, name: ROUTE_NAMES.SINGLE },
-  { path: '/admin', component: AdministrationView, name: ROUTE_NAMES.ADMIN },
+  { path: '/:slug/new-episode', component: UploadNewEpisodeView, name: ROUTE_NAMES.UPLOAD },
 ]
 
 const router = new VueRouter({
