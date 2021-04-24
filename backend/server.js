@@ -45,6 +45,8 @@ const findByOid = oid => {
 	return null
 }
 
+const currentTimestamp = () => Math.round(Date.now() / 1000);
+
 const randomString = (length = 8) => {
   var result = ''
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -207,6 +209,48 @@ app.get('/api/podcasts', async (req, res) => {
 	res.json(podcasts)
 })
 
+app.post('/api/podcasts/:id/episodes', async (req, res) => {
+	const [podcasts] = await pool.query(
+		'SELECT `id` \
+		FROM `podcast` \
+		WHERE `id` = ?',
+		[req.params.id]
+	)
+
+	if (podcasts.length !== 1) {
+		res.status(404).end()
+		return
+	}
+
+	const podcast = podcasts[0]
+
+	let title = req.body.title
+
+	if (typeof title !== 'string') {
+		res.stauts(400).end()
+		return
+	}
+
+	title = title.trim()
+
+	if (title.length === 0 || title.length > 100) {
+		res.status(400).json('The title is invalid')
+		return
+	}
+
+	const id = randomString()
+
+	await pool.query(
+		'INSERT INTO `podcastEpisode` (`id`, `podcast`, `title`, `isVisible`) \
+		VALUES(?, ?, ?, ?)',
+		[id, podcast.id, title, false]
+	)
+
+	res.status(201).json({
+		id,
+	})
+})
+
 app.get('/api/:slug', async (req, res) => {
 	if (!req.user) {
 		res.status(403).end()
@@ -253,8 +297,8 @@ app.get('/api/:slug', async (req, res) => {
 			`duration`, \
 			`published` \
 		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isVisible` = ?',
-		[podcast.id, true]
+		WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
+		[podcast.id, currentTimestamp(), true]
 	)
 
 	podcast.episodes = episodes
@@ -275,7 +319,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
 		FROM `podcast`, `podcastToken`, `accounts` \
-		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isHidden` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ?',
+		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isVisible` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ?',
 		[token, true, false]
 	)
 
@@ -296,8 +340,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`fileSize`, \
 			`published` \
 		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isVisible` = ?',
-		[podcast.id, true]
+		WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
+		[podcast.id, currentTimestamp(), true]
 	)
 
 	podcast.episodes = episodes
