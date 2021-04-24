@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {getPodcasts} from '@/utils/api'
 
 export default {
   name: 'ListView',
@@ -26,7 +26,7 @@ export default {
   }),
 
   async created() {
-    const podcasts = (await axios.get('/podcasts')).data
+    const podcasts = await getPodcasts()
     podcasts.sort((a, b) => a.title.localeCompare(b.title))
     this.podcasts = podcasts
   },

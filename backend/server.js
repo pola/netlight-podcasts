@@ -124,8 +124,6 @@ var httpServer = http.createServer(app)
 
 const getTimestamp = () => Math.floor(Date.now() / 1000)
 
-var isPlainObject = o => Object.prototype.toString.call(o) === '[object Object]'
-
 app.use(express.json())
 
 app.get('/login', (req, res, next) => {
@@ -193,6 +191,125 @@ app.delete('/api/me', (req, res) => {
 	res.status(204).end()
 })
 
+app.get('/api/admin/podcasts', async (req, res) => {
+	const [podcasts] = await pool.query(
+		'SELECT \
+			`id`, \
+			`slug`, \
+			`title`, \
+			`description`, \
+			`isVisible` \
+		FROM `podcast`'
+	)
+
+	for (const podcast of podcasts) {
+		podcast.isVisible = podcast.isVisible === 1
+	}
+
+	res.json(podcasts)
+})
+
+app.get('/api/admin/podcasts/:id', async (req, res) => {
+	const [podcasts] = await pool.query(
+		'SELECT \
+			`id`, \
+			`slug`, \
+			`title`, \
+			`description`, \
+			`isVisible` \
+		FROM `podcast`'
+	)
+
+	if (podcasts.length !== 1) {
+		res.status(404).end()
+		return
+	}
+
+	const podcast = podcasts[0]
+
+	podcast.isVisible = podcast.isVisible === 1
+
+	res.json(podcast)
+})
+
+app.get('/api/admin/podcasts/:id/episodes', async (req, res) => {
+	const [podcasts] = await pool.query(
+		'SELECT `id` \
+		FROM `podcast`'
+	)
+
+	if (podcasts.length !== 1) {
+		res.status(404).end()
+		return
+	}
+
+	const podcast = podcasts[0]
+
+	const [episodes] = await pool.query(
+		'SELECT \
+			`id`, \
+			`slug`, \
+			`title`, \
+			`description`, \
+			`duration`, \
+			`fileName`, \
+			`fileSize`, \
+			`published`, \
+			`isVisible` \
+		FROM `podcastEpisode` \
+		WHERE `podcast` = ?',
+		[podcast.id]
+	)
+
+	for (const episode of episodes) {
+		episode.isVisible = episode.isVisible === 1
+	}
+
+	res.json(episodes)
+})
+
+app.post('/api/admin/podcasts/:id/episodes', async (req, res) => {
+	const [podcasts] = await pool.query(
+		'SELECT `id` \
+		FROM `podcast` \
+		WHERE `id` = ?',
+		[req.params.id]
+	)
+
+	if (podcasts.length !== 1) {
+		res.status(404).end()
+		return
+	}
+
+	const podcast = podcasts[0]
+
+	let title = req.body.title
+
+	if (typeof title !== 'string') {
+		res.stauts(400).end()
+		return
+	}
+
+	title = title.trim()
+
+	if (title.length === 0 || title.length > 100) {
+		res.status(400).json('The title is invalid')
+		return
+	}
+
+	const id = randomString()
+
+	await pool.query(
+		'INSERT INTO `podcastEpisode` (`id`, `podcast`, `title`, `isVisible`) \
+		VALUES(?, ?, ?, ?)',
+		[id, podcast.id, title, false]
+	)
+
+	res.status(201).json({
+		id,
+	})
+})
+
 app.get('/api/podcasts', async (req, res) => {
 	const [podcasts] = await pool.query(
 		'SELECT \
@@ -203,19 +320,11 @@ app.get('/api/podcasts', async (req, res) => {
 		WHERE `isVisible` = ?',
 		[true]
 	)
-	
+
 	res.json(podcasts)
 })
 
-app.get('/api/:slug', async (req, res) => {
-	if (!req.user) {
-		res.status(403).end()
-		return
-	}
-
-	const username = req.user._json.preferred_username
-	const slug = req.params.slug
-
+const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 	const [podcasts] = await pool.query(
 		'SELECT \
 			`podcast`.`id`, \
@@ -224,14 +333,13 @@ app.get('/api/:slug', async (req, res) => {
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
 		FROM `podcast` \
-		LEFT JOIN `podcastToken` ON `podcastToken`.`username` = ? AND `podcastToken`.`podcast` = `podcast`.`id` \
+		LEFT JOIN `podcastToken` ON `podcastToken`.`username` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcastToken`.`isRemoved` = ? \
 		WHERE `slug` = ? AND `isVisible` = ?',
-		[username, slug, true]
+		[username, false, slug, true]
 	)
 
 	if (podcasts.length !== 1) {
-		res.status(404).end()
-		return
+		return null
 	}
 
 	const podcast = podcasts[0]
@@ -240,27 +348,83 @@ app.get('/api/:slug', async (req, res) => {
 		podcast.token = randomString(32)
 
 		await pool.query(
-			'INSERT INTO `podcastToken` (`token`, `username`, `podcast`) VALUES(?, ?, ?)',
-			[podcast.token, username, podcast.id]
+			'INSERT INTO `podcastToken` (`token`, `username`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
+			[podcast.token, username, podcast.id, false]
 		)
 	}
 
-	const [episodes] = await pool.query(
-		'SELECT \
-			`slug`, \
-			`title`, \
-			`description`, \
-			`duration`, \
-			`published` \
-		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isVisible` = ?',
-		[podcast.id, true]
-	)
+	if (withEpisodes) {
+		const [episodes] = await pool.query(
+			'SELECT \
+				`slug`, \
+				`title`, \
+				`description`, \
+				`duration`, \
+				`published` \
+			FROM `podcastEpisode` \
+			WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
+			[podcast.id, getTimestamp(), true]
+		)
 
-	podcast.episodes = episodes
+		podcast.episodes = episodes
+	}
+	
+	return podcast
+}
+
+app.get('/api/podcasts/:slug', async (req, res) => {
+	if (!req.user) {
+		res.status(403).end()
+		return
+	}
+
+	const slug = req.params.slug
+	const username = req.user._json.preferred_username
+	const podcast = await getPodcastBySlug(slug, username)
+
+	if (podcast === null) {
+		res.status(404).end()
+		return
+	}
 
 	delete podcast.id
 	
+	res.json(podcast)
+})
+
+app.patch('/api/podcasts/:slug', async (req, res) => {
+	if (!req.user) {
+		res.status(403).end()
+		return
+	}
+
+	const slug = req.params.slug
+	const username = req.user._json.preferred_username
+	const podcast = await getPodcastBySlug(slug, username)
+
+	if (podcast === null) {
+		res.status(404).end()
+		return
+	}
+
+	if (req.body.token === null) {
+		await pool.query(
+			'UPDATE `podcastToken` \
+			SET `isRemoved` = ? \
+			WHERE `podcast` = ? AND `username` = ?',
+			[true, podcast.id, username]
+		)
+
+		podcast.token = randomString(32)
+
+		await pool.query(
+			'INSERT INTO `podcastToken` (`token`, `username`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
+			[podcast.token, username, podcast.id, false]
+		)
+	}
+
+	delete podcast.id
+
 	res.json(podcast)
 })
 
@@ -275,8 +439,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
 		FROM `podcast`, `podcastToken`, `accounts` \
-		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isHidden` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ?',
-		[token, true, false]
+		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isVisible` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ? AND `podcastToken`.`isRemoved` = ?',
+		[token, true, false, false]
 	)
 
 	if (podcasts.length !== 1) {
@@ -296,8 +460,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`fileSize`, \
 			`published` \
 		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isVisible` = ?',
-		[podcast.id, true]
+		WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
+		[podcast.id, getTimestamp(), true]
 	)
 
 	podcast.episodes = episodes

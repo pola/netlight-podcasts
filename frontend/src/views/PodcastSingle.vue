@@ -20,7 +20,16 @@
       readonly
     />
       
-    <p>Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.</p>
+    <p>
+      Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
+      <button
+        @click="refreshToken()"
+        class="small"
+        style="display: inline-block;"
+      >
+        Generate new link
+      </button>
+    </p>
 
     <h2>Serials</h2>
     <div
@@ -50,8 +59,20 @@ export default {
     podcast: null,
   }),
 
+  methods: {
+    async refreshToken() {
+      if (confirm('Generating a new link will make your current link unusable. Confirm that this is what you want to do.')) {
+        const podcast = (await axios.patch('/podcasts/' + this.podcast.slug, {
+          token: null,
+        })).data
+
+        this.podcast.token = podcast.token
+      }
+    }
+  },
+
   async created() {
-    this.podcast = (await axios.get('/' + this.$route.params.slug)).data
+    this.podcast = (await axios.get('/podcasts/' + this.$route.params.slug)).data
     this.podcast.episodes.sort((a, b) => a.published - b.published)
   },
 }
