@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-app>
     <NavBar />
     <div class="wrapper">
       <router-link
@@ -11,7 +11,7 @@
       />
       <router-view class="content" />
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>

@@ -21,7 +21,7 @@ module.exports = {
         target: process.env.VUE_APP_API,
       },
       
-      '/socket.io': {
+      '/audio': {
         target: process.env.VUE_APP_API,
       },
     },
