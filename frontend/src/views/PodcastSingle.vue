@@ -22,13 +22,12 @@
       
     <p>
       Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
-      <button
-        @click="refreshToken()"
-        class="small"
-        style="display: inline-block;"
+      <v-btn
+        @click="confirmTokenRefreshDialog = true"
+        small
       >
         Generate new link
-      </button>
+      </v-btn>
     </p>
 
     <h2>Serials</h2>
@@ -46,6 +45,37 @@
 
       <p>{{ episode.description }}</p>
     </div>
+
+    <v-dialog
+      v-model="confirmTokenRefreshDialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          Generate new link
+        </v-card-title>
+
+        <v-card-text>
+          When you generate a new link, your current link will stop working. Confirm that this is what you want to do.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            text
+            @click="confirmTokenRefreshDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            @click="refreshToken()"
+          >
+            Generate new link
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -57,17 +87,17 @@ export default {
   
   data: () => ({
     podcast: null,
+    confirmTokenRefreshDialog: false,
   }),
 
   methods: {
     async refreshToken() {
-      if (confirm('Generating a new link will make your current link unusable. Confirm that this is what you want to do.')) {
-        const podcast = (await axios.patch('/podcasts/' + this.podcast.slug, {
-          token: null,
-        })).data
+      const podcast = (await axios.patch('/podcasts/' + this.podcast.slug, {
+        token: null,
+      })).data
 
-        this.podcast.token = podcast.token
-      }
+      this.podcast.token = podcast.token
+      this.confirmTokenRefreshDialog = false
     }
   },
 
