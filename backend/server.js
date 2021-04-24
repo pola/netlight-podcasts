@@ -148,7 +148,7 @@ const handleSuccessfulAuthentication = async (req, res) => {
 	const timestamp = getTimestamp()
 
 	await pool.query(
-		'INSERT INTO `accounts` (`username`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`, `isRemoved`) \
+		'INSERT INTO `account` (`id`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`, `isRemoved`) \
 		VALUES(?, ?, ?, ?, ?, ?) \
 		ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`), `isRemoved` = VALUES(`isRemoved`)',
 		[req.user._json.preferred_username, req.user.displayName, timestamp, timestamp, false, false]
@@ -173,8 +173,8 @@ app.get('/api/me', async (req, res) => {
 	} else {
 		const account = (await pool.query(
 			'SELECT * \
-			FROM `accounts` \
-			WHERE `username` = ?',
+			FROM `account` \
+			WHERE `id` = ?',
 			[req.user._json.preferred_username]
 		))[0][0]
 
@@ -333,7 +333,7 @@ const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
 		FROM `podcast` \
-		LEFT JOIN `podcastToken` ON `podcastToken`.`username` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcastToken`.`isRemoved` = ? \
+		LEFT JOIN `podcastToken` ON `podcastToken`.`account` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcastToken`.`isRemoved` = ? \
 		WHERE `slug` = ? AND `isVisible` = ?',
 		[username, false, slug, true]
 	)
@@ -348,7 +348,7 @@ const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 		podcast.token = randomString(32)
 
 		await pool.query(
-			'INSERT INTO `podcastToken` (`token`, `username`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
+			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
 			[podcast.token, username, podcast.id, false]
 		)
 	}
@@ -411,14 +411,14 @@ app.patch('/api/podcasts/:slug', async (req, res) => {
 		await pool.query(
 			'UPDATE `podcastToken` \
 			SET `isRemoved` = ? \
-			WHERE `podcast` = ? AND `username` = ?',
+			WHERE `podcast` = ? AND `account` = ?',
 			[true, podcast.id, username]
 		)
 
 		podcast.token = randomString(32)
 
 		await pool.query(
-			'INSERT INTO `podcastToken` (`token`, `username`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
+			'INSERT INTO `podcastToken` (`token`, `account`, `podcast`, `isRemoved`) VALUES(?, ?, ?, ?)',
 			[podcast.token, username, podcast.id, false]
 		)
 	}
@@ -436,8 +436,8 @@ const getPodcastByToken = async token => {
 			`podcast`.`title`, \
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
-		FROM `podcast`, `podcastToken`, `accounts` \
-		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isVisible` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ? AND `podcastToken`.`isRemoved` = ?',
+		FROM `podcast`, `podcastToken`, `account` \
+		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isVisible` = ? AND `account`.`id` = `podcastToken`.`account` AND `account`.`isRemoved` = ? AND `podcastToken`.`isRemoved` = ?',
 		[token, true, false, false]
 	)
 
