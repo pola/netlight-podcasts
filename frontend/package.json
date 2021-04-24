@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "vue-cli-service serve",
-    "build:prod": "vue-cli-service build",
-    "build:dev": "vue-cli-service build --mode development",
     "build": "npm run build:dev",
     "lint": "vue-cli-service lint",
-    "lint:fix": "vue-cli-service lint --fix"
+    "build:dev": "vue-cli-service build --mode development",
+    "build:prod": "vue-cli-service build",
+    "lint:fix": "vue-cli-service lint --fix",
+    "start": "vue-cli-service serve"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -17,6 +17,7 @@
     "vue": "^2.6.11",
     "vue-moment": "^4.1.0",
     "vue-router": "^3.3.4",
+    "vuetify": "^2.4.0",
     "vuex": "^3.5.1",
     "webpack": "^4.44.0"
   },
@@ -31,9 +32,11 @@
     "eslint": "^7.5.0",
     "eslint-plugin-vue": "^7.0.0-beta.0",
     "fibers": "^5.0.0",
-    "sass": "^1.26.10",
-    "sass-loader": "^9.0.2",
-    "vue-template-compiler": "^2.6.11"
+    "sass": "^1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-vuetify": "~2.3.1",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
   },
   "rules": {
     "semi": 0
