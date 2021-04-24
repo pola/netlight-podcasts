@@ -5,7 +5,7 @@
       <template v-if="isSignedIn">
         <NavBarItem
           v-if="user.isAdmin"
-          title="Administration"
+          title="Upload Episode"
           @click="goToAdmin"
         />
         <NavBarItem

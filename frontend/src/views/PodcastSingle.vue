@@ -51,6 +51,7 @@
 
 <script>
 import axios from 'axios'
+import {getPodcast} from '@/utils/api'
 
 export default {
   name: 'ListView',
@@ -72,7 +73,7 @@ export default {
   },
 
   async created() {
-    this.podcast = (await axios.get('/podcasts/' + this.$route.params.slug)).data
+    this.podcast = await getPodcast(this.$route.params.slug)
     this.podcast.episodes.sort((a, b) => a.published - b.published)
   },
 }

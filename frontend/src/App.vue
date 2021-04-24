@@ -42,6 +42,7 @@ export default {
   display: block;
   width: min(80%, 500px);
   filter: drop-shadow(0 0 1px #666666);
+  padding: 2em;
 }
 
 .content {
