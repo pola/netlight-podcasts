@@ -51,7 +51,7 @@ export default {
   }),
 
   async created() {
-    this.podcast = (await axios.get('/' + this.$route.params.slug)).data
+    this.podcast = (await axios.get('/podcasts/' + this.$route.params.slug)).data
     this.podcast.episodes.sort((a, b) => a.published - b.published)
   },
 }
