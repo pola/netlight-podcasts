@@ -150,10 +150,10 @@ const handleSuccessfulAuthentication = async (req, res) => {
 	const timestamp = getTimestamp()
 
 	await pool.query(
-		'INSERT INTO `accounts` (`username`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`) \
-		VALUES(?, ?, ?, ?, ?) \
-		ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`)',
-		[req.user._json.preferred_username, req.user.displayName, timestamp, timestamp, false]
+		'INSERT INTO `accounts` (`username`, `name`, `timestampRegistered`, `timestampSeen`, `isAdmin`, `isRemoved`) \
+		VALUES(?, ?, ?, ?, ?, ?) \
+		ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `timestampSeen` = VALUES(`timestampSeen`), `isRemoved` = VALUES(`isRemoved`)',
+		[req.user._json.preferred_username, req.user.displayName, timestamp, timestamp, false, false]
 	)
 
 	res.redirect(req.body.state)
@@ -200,8 +200,8 @@ app.get('/api/podcasts', async (req, res) => {
 			`title`, \
 			`description` \
 		FROM `podcast` \
-		WHERE `isHidden` = ?',
-		[false]
+		WHERE `isVisible` = ?',
+		[true]
 	)
 	
 	res.json(podcasts)
@@ -225,8 +225,8 @@ app.get('/api/:slug', async (req, res) => {
 			`podcastToken`.`token` \
 		FROM `podcast` \
 		LEFT JOIN `podcastToken` ON `podcastToken`.`username` = ? AND `podcastToken`.`podcast` = `podcast`.`id` \
-		WHERE `slug` = ? AND `isHidden` = ?',
-		[username, slug, false]
+		WHERE `slug` = ? AND `isVisible` = ?',
+		[username, slug, true]
 	)
 
 	if (podcasts.length !== 1) {
@@ -253,8 +253,8 @@ app.get('/api/:slug', async (req, res) => {
 			`duration`, \
 			`published` \
 		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isHidden` = ?',
-		[podcast.id, false]
+		WHERE `podcast` = ? AND `isVisible` = ?',
+		[podcast.id, true]
 	)
 
 	podcast.episodes = episodes
@@ -274,9 +274,9 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`podcast`.`title`, \
 			`podcast`.`description`, \
 			`podcastToken`.`token` \
-		FROM `podcast`, `podcastToken` \
-		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isHidden` = ?',
-		[token, false]
+		FROM `podcast`, `podcastToken`, `accounts` \
+		WHERE `podcastToken`.`token` = ? AND `podcastToken`.`podcast` = `podcast`.`id` AND `podcast`.`isHidden` = ? AND `accounts`.`username` = `podcastToken`.`username` AND `accounts`.`isRemoved` = ?',
+		[token, true, false]
 	)
 
 	if (podcasts.length !== 1) {
@@ -296,8 +296,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`fileSize`, \
 			`published` \
 		FROM `podcastEpisode` \
-		WHERE `podcast` = ? AND `isHidden` = ?',
-		[podcast.id, false]
+		WHERE `podcast` = ? AND `isVisible` = ?',
+		[podcast.id, true]
 	)
 
 	podcast.episodes = episodes
