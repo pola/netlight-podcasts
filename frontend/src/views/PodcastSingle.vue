@@ -1,5 +1,5 @@
 <template>
-  <div v-if="$store.state.user === null">
+  <div v-if="!isLoggedIn">
     <h1>Sign in</h1>
     <p style="text-align: center;">
       To see this content, please <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">sign in</a> with your Netlight account.
@@ -94,6 +94,11 @@ import {getPodcast} from '@/utils/api'
 
 export default {
   name: 'ListView',
+  computed: {
+    isLoggedIn() {
+      return this.$store.state.user !== null
+    }
+  },
   
   data: () => ({
     podcast: null,
@@ -123,8 +128,11 @@ export default {
   },
 
   async created() {
-    this.podcast = await getPodcast(this.$route.params.slug)
-    this.podcast.episodes.sort((a, b) => a.published - b.published)
+    if (this.isLoggedIn) {
+      this.podcast = await getPodcast(this.$route.params.slug)
+      this.podcast.episodes.sort((a, b) => a.published - b.published)
+
+    }
   },
 }
 </script>

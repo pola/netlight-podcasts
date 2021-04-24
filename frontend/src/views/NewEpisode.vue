@@ -1,7 +1,7 @@
 <template>
   <div v-if="podcast">
-    <h1>Upload a new Episode</h1>
-    <p>Episode is uploaded in podcast <em>{{ podcastTitle }}</em></p>
+    <h1>Add a new episode</h1>
+    <p>The episode is added to podcast <em>{{ podcastTitle }}</em></p>
     <v-form
       ref="form"
       v-model="valid"
@@ -9,10 +9,8 @@
     >
       <v-text-field
         v-model="title"
-        error-messages="Title is required"
-        label="title"
+        label="Title"
         :rules="titleRules"
-        required
       />
 
       <v-btn
@@ -21,13 +19,6 @@
         @click="submit"
       >
         submit
-      </v-btn>
-
-      <v-btn
-        color="warning"
-        @click="resetValidation"
-      >
-        Reset Validation
       </v-btn>
     </v-form>
   </div>
@@ -54,11 +45,12 @@ export default {
   data() {
     return {
       podcast: null,
-      valid: true,
+      valid: false,
+      name: '',
       title: '',
       titleRules: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => !!v || 'Title is required',
+        v => (v && v.length <= 100) || 'Title must be less than 100 characters',
       ],
     }
   },
@@ -72,16 +64,8 @@ export default {
     },
     submit() {
       this.$refs.form.validate()
-      postNewEpisode(this.title)
-    },
-    validate () {
-      this.$refs.form.validate()
-    },
-    reset () {
-      this.$refs.form.reset()
-    },
-    resetValidation () {
-      this.$refs.form.resetValidation()
+      if (this.valid)
+        postNewEpisode(this.title)
     },
 
   }

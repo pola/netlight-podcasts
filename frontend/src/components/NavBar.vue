@@ -3,16 +3,17 @@
     <div />
     <div class="nav-bar__right">
       <template v-if="isSignedIn">
-        <NavBarItem
-          v-if="user.isAdmin"
-          title="Upload Episode"
-          @click="goToUpload"
-        />
-        <NavBarItem
-          v-if="user.isAdmin"
-          title="Episodes"
-          @click="goToEpisodes"
-        />
+        <router-link
+          v-for="item in adminItems"
+          :key="item.title"
+          :to="{name: item.route, params: { slug: 'a-demo-podcast' }}"
+          tag="div"
+        >
+          <NavBarItem
+            v-if="user.isAdmin"
+            :title="item.title"
+          />
+        </router-link>
         <NavBarItem
           title="Sign out"
           @click="signOut"
@@ -36,6 +37,19 @@ name: 'NavBar',
     },
     isSignedIn() {
       return  this.user !== null
+    }
+  },
+  data() {
+    return {
+      uploadRoute: ROUTE_NAMES.UPLOAD,
+      episodesRoute: ROUTE_NAMES.SINGLE,
+      adminItems: [{
+        title: 'Add Episode',
+        route: ROUTE_NAMES.UPLOAD
+      },{
+        title: 'Episodes',
+        route: ROUTE_NAMES.SINGLE
+      }]
     }
   },
   methods: {
