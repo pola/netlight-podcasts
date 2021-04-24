@@ -7,7 +7,7 @@
       <template v-else>
         Hello {{ $store.state.user.name }}
         <template v-if="$store.state.user.isAdmin">
-          | <router-link to="/admin">
+          | <router-link :to="{name: 'admin'}">
             Administration
           </router-link>
         </template>

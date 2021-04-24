@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import PodcastListView from '../views/List.vue'
-import PodcastSingleView from '../views/Single.vue'
+import PodcastListView from '../views/PodcastList.vue'
+import PodcastSingleView from '../views/PodcastSingle.vue'
+import AdministrationView from '../views/Administration'
 
 Vue.use(VueRouter)
 
 const routes = [
   { path: '/', component: PodcastListView },
   { path: '/:slug', component: PodcastSingleView },
+  { path: '/admin', component: AdministrationView, name: 'admin' },
 ]
 
 const router = new VueRouter({
