@@ -1,41 +1,25 @@
 <template>
-  <div class="wrapper">
-    <div class="userBar">
-      <template v-if="$store.state.user === null">
-        <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">Sign in</a>
-      </template>
-      <template v-else>
-        Hello {{ $store.state.user.name }}
-        <template v-if="$store.state.user.isAdmin">
-          | <router-link :to="{name: 'admin'}">
-            Administration
-          </router-link>
-        </template>
-        | <a @click="signOut">Sign out</a>
-      </template>
+  <div>
+    <NavBar />
+    <div class="wrapper">
+      <router-link
+        tag="img"
+        to="/"
+        src="/images/logo.svg"
+        alt="Netlight Podcasts"
+        class="logo"
+      />
+      <router-view class="content" />
     </div>
-
-    <router-link
-      tag="img"
-      to="/"
-      src="/images/logo.svg"
-      alt="Netlight Podcasts"
-      class="logo"
-    />
-
-    <router-view class="content" />
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import NavBar from '@/components/NavBar'
 
 export default {
+  components: {NavBar},
   methods: {
-    async signOut() {
-      await axios.delete('/me')
-      this.$store.commit('setUser', null)
-    },
   }
 }
 </script>
@@ -70,25 +54,6 @@ export default {
   box-shadow: 0 0 30px rgba(166, 162, 220, 0.7);
 }
 
-.userBar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  background: rgba(249, 249, 249, 0.7);
-  box-shadow: 0 0 30px rgba(166, 162, 220, 0.7);
-  padding: 10px;
-}
-
-.userBar, .userBar > a {
-  color: #2C3F6B;
-  text-decoration: none;
-}
-
-.userBar > a:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 @media only screen and (max-width: 768px)
 {
 	body {
@@ -97,11 +62,6 @@ export default {
   
   .content {
     padding: 1em;
-  }
-
-  .userBar {
-    left: 0;
-    text-align: center;
   }
 }
 </style>

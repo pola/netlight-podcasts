@@ -22,7 +22,8 @@ export default {
   methods: {
     async loadPodcasts() {
       this.podcasts = await getPodcasts()
-    }
+    },
+
   }
 }
 </script>
