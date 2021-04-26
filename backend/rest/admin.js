@@ -101,14 +101,14 @@ router.post('/podcasts/:id/episodes', async (req, res) => {
 	let title = req.body.title
 
 	if (typeof title !== 'string') {
-		res.stauts(400).end()
+		res.status(400).end()
 		return
 	}
 
 	title = title.trim()
 
 	if (title.length === 0 || title.length > 100) {
-		res.status(400).json('The title is invalid')
+		res.status(400).json('The title is invalid.')
 		return
 	}
 
