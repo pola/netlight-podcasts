@@ -11,7 +11,7 @@ export const ROUTE_NAMES = {
 }
 
 const routes = [
-  { path: '/', redirect: { name: ROUTE_NAMES.SINGLE,  params: { slug: 'a-demo-podcast' }}},
+  { path: '/', redirect: { name: ROUTE_NAMES.SINGLE,  params: { slug: 'netlight-stories' }}},
   { path: '/:slug', component: PodcastSingleView, name: ROUTE_NAMES.SINGLE },
   { path: '/:slug/new-episode', component: UploadNewEpisodeView, name: ROUTE_NAMES.UPLOAD },
 ]

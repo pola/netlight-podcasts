@@ -6,7 +6,7 @@
         <router-link
           v-for="item in adminItems"
           :key="item.title"
-          :to="{name: item.route, params: { slug: 'a-demo-podcast' }}"
+          :to="{name: item.route, params: { slug: 'netlight-stories' }}"
           tag="div"
         >
           <NavBarItem
@@ -58,10 +58,10 @@ name: 'NavBar',
       this.$store.commit('setUser', null)
     },
     goToUpload() {
-      this.$router.push({name: ROUTE_NAMES.UPLOAD, params: { slug: 'a-demo-podcast' }})
+      this.$router.push({name: ROUTE_NAMES.UPLOAD, params: { slug: 'netlight-stories' }})
     },
     goToEpisodes() {
-      this.$router.push({name: ROUTE_NAMES.SINGLE, params: { slug: 'a-demo-podcast' }})
+      this.$router.push({name: ROUTE_NAMES.SINGLE, params: { slug: 'netlight-stories' }})
     }
 
   }
