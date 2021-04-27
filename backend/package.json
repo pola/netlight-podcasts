@@ -1,7 +1,7 @@
 {
   "name": "netlight-podcasts-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for https://podcasts.netlight.com/.",
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -17,6 +17,7 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Katarina Bergbom, Linnea Dahl, Martin Pola",
+  "repository": "https://github.com/pola/netlight-podcasts",
   "license": "ISC"
 }

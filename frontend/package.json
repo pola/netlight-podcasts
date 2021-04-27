@@ -1,7 +1,7 @@
 {
   "name": "netlight-podcasts-frontend",
   "version": "1.0.0",
-  "private": true,
+  "description": "Frontend for https://podcasts.netlight.com/.",
   "scripts": {
     "build": "npm run build:dev",
     "lint": "vue-cli-service lint",
@@ -40,5 +40,7 @@
   },
   "rules": {
     "semi": 0
-  }
+  },
+  "author": "Katarina Bergbom, Linnea Dahl, Martin Pola",
+  "repository": "https://github.com/pola/netlight-podcasts"
 }
