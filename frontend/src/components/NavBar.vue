@@ -18,6 +18,11 @@
           title="Sign out"
           @click="signOut"
         />
+
+        <NavBarItem
+          title="Guide"
+          @click="guide"
+        />
       </template>
     </div>
   </div>
@@ -56,6 +61,9 @@ name: 'NavBar',
     async signOut() {
       await axios.delete('/me')
       this.$store.commit('setUser', null)
+    },
+    async guide() {
+        this.$router.push({name: ROUTE_NAMES.GUIDE})
     },
     goToUpload() {
       this.$router.push({name: ROUTE_NAMES.UPLOAD, params: { slug: 'netlight-stories' }})
