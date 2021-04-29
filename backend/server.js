@@ -313,7 +313,6 @@ app.get('/audio/:token/:slug', async (req, res) => {
 	const episode = episodes[0]
 
 	res.writeHead(200, {
-		'content-disposition': 'attachment; filename="episode"',
 		'content-type': episode.fileMimeType,
 		'content-length': episode.fileSize,
 	})
