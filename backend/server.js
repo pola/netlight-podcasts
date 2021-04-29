@@ -323,10 +323,8 @@ app.get('/audio/:token/:slug', async (req, res) => {
 	const episode = episodes[0]
 
 	res.sendSeekable(Buffer.from(episode.fileContent), {
-		config: {
-			length: episode.fileSize,
-			type: episode.fileMimeType,
-		},
+		length: episode.fileSize,
+		type: episode.fileMimeType,
 	})
 
 	log.savePodcastTokenAudio(req, token, episode.id)
