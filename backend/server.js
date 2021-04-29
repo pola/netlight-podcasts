@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
+const sendSeekable = require('send-seekable')
 
 const log = require('./log')
 const common = require('./common')
@@ -66,6 +67,10 @@ const strategyConfig = {
 	useCookieInsteadOfSession: config.creds.useCookieInsteadOfSession,
 	cookieEncryptionKeys: config.creds.cookieEncryptionKeys,
 	clockSkew: config.creds.clockSkew,
+}
+
+const extensions = {
+	'audio/mpeg': 'mp3',
 }
 
 passport.use(new OIDCStrategy(strategyConfig, (iss, sub, profile, accessToken, refreshToken, done) => {
@@ -232,6 +237,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 			`duration`, \
 			`fileName`, \
 			`fileSize`, \
+			`fileMimeType`, \
 			`published` \
 		FROM `podcastEpisode` \
 		WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
@@ -261,12 +267,14 @@ app.get('/rss/:token.xml', async (req, res) => {
 	rssLines.push('<itunes:category text="Business" />')
 
 	for (const episode of episodes) {
+		const extension = extensions[episode.fileMimeType]
+
 		rssLines.push('<item>')
 		rssLines.push('<title>' + episode.title + '</title>')
 		rssLines.push('<itunes:summary>' + episode.description + '</itunes:summary>')
 		rssLines.push('<description>' + episode.description + '</description>')
 		rssLines.push('<link>https://podcasts.netlight.com/' + podcast.slug + '/' + episode.slug + '</link>')
-		rssLines.push('<enclosure url="https://podcasts.netlight.com/audio/' + token + '/' + episode.slug + '" type="audio/mpeg" length="' + episode.fileSize + '"></enclosure>')
+		rssLines.push('<enclosure url="https://podcasts.netlight.com/audio/' + token + '/' + episode.slug + '.' + extension + '" type="' + episode.fileMimeType + '" length="' + episode.fileSize + '"></enclosure>')
 		rssLines.push('<pubDate>' + (new Date(episode.published * 1000)).toUTCString() + '</pubDate>')
 		rssLines.push('<itunes:author>Netlight Podcasts</itunes:author>')
 		rssLines.push('<itunes:duration>' + common.duration2itunes(episode.duration) + '</itunes:duration>')
@@ -278,11 +286,13 @@ app.get('/rss/:token.xml', async (req, res) => {
 	rssLines.push('</channel>')
 	rssLines.push('</rss>')
 	
-	res.set('content-type', 'text/xml')
+	res.set('content-type', 'application/rss+xml')
 	res.send(rssLines.join('\n'))
 
 	log.savePodcastTokenRss(req, token)
 })
+
+app.use(sendSeekable)
 
 app.get('/audio/:token/:slug', async (req, res) => {
 	const token = req.params.token
@@ -302,7 +312,7 @@ app.get('/audio/:token/:slug', async (req, res) => {
 			`fileSize` \
 		FROM`podcastEpisode` \
 		WHERE `slug` = ? AND `podcast` = ? AND `isVisible` = ? AND `published` IS NOT NULL AND `published` < ?',
-		[req.params.slug, podcast.id, true, common.getTimestamp()]
+		[req.params.slug.split('.')[0], podcast.id, true, common.getTimestamp()]
 	)
 
 	if (episodes.length !== 1) {
@@ -312,13 +322,10 @@ app.get('/audio/:token/:slug', async (req, res) => {
 
 	const episode = episodes[0]
 
-	res.writeHead(200, {
-		'content-disposition': 'attachment; filename="episode"',
-		'content-type': episode.fileMimeType,
-		'content-length': episode.fileSize,
+	res.sendSeekable(Buffer.from(episode.fileContent), {
+		length: episode.fileSize,
+		type: episode.fileMimeType,
 	})
-
-	res.end(episode.fileContent)
 
 	log.savePodcastTokenAudio(req, token, episode.id)
 })
