@@ -1,6 +1,14 @@
 <template>
   <div class="nav-bar">
-    <div />
+    <div v-if="isSignedIn">
+      <router-link
+        tag="img"
+        to="/"
+        :src="require('@/assets/netlight-stories--dark.png')"
+        alt="Netlight Stories"
+        class="nav-bar__home"
+      />
+    </div>
     <div class="nav-bar__right">
       <template v-if="isSignedIn">
         <router-link
@@ -15,13 +23,12 @@
           />
         </router-link>
         <NavBarItem
-          title="Sign out"
-          @click="signOut"
-        />
-
-        <NavBarItem
           title="Guide"
           @click="guide"
+        />
+        <NavBarItem
+          title="Sign out"
+          @click="signOut"
         />
       </template>
     </div>
@@ -86,24 +93,28 @@ name: 'NavBar',
   padding: 1em;
   color: white;
   text-decoration: none;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
   &__right {
     display: flex;
+  }
+  &__home {
+    color: #7473bd;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 100px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.7;
+
+    }
   }
 }
 
 @media only screen and (max-width: 768px)
 {
-  body {
-    font-size: 0.75em;
-  }
-
-  .content {
-    padding: 1em;
-  }
-
-  .userBar {
-    left: 0;
-    text-align: center;
-  }
 }
 </style>

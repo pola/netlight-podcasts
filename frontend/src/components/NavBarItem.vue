@@ -16,10 +16,11 @@ export default {
 
 <style lang="scss" scoped>
 .nav-bar-item {
-  color: white;
+  color: #7473bd;
   font-weight: bold;
   padding: 0.5em;
   cursor: pointer;
+  margin-bottom: 0;
   &:hover {
     opacity: 0.7
   }

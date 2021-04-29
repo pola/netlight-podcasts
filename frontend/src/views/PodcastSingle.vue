@@ -1,19 +1,16 @@
 <template>
-  <div v-if="!isLoggedIn">
-    <h1>Sign in</h1>
+  <div v-if="!isLoggedIn" class="podcast__sign-in">
     <p style="text-align: center;">
       To see this content, please <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">sign in</a> with your Netlight account.
     </p>
   </div>
   
   <div v-else-if="podcast !== null">
-    <h1>{{ podcast.title }}</h1>
-    <p>{{ podcast.description }}</p>
-
     <h2>Tune in</h2>
     <p>Use the link below to tune in to the podcast in your favourite application.</p>
 
     <input
+      class="podcast__link"
       type="text"
       :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
       @focus="e => e.target.select()"
@@ -30,20 +27,24 @@
       </v-btn>
     </p>
 
-    <h2>Serials</h2>
+    <h2>Episodes</h2>
     <div
       class="episode"
       :key="episode.slug"
       v-for="episode in podcast.episodes"
     >
-      <div class="header">
-        <h3>{{ episode.title }}</h3>
-        <div class="meta">
-          {{ episode.published | moment('ll') }} • {{ Math.floor(episode.duration / 60) }} min
+      <img class="episode__img" :src="require('@/assets/profile-kim.png')"/>
+      <div>
+        <div class="header">
+          <h3>{{ episode.title }}</h3>
+          <div class="meta">
+            {{ episode.published | moment('ll') }} • {{ Math.floor(episode.duration / 60) }} min
+          </div>
         </div>
+
+        <p>{{ episode.description }}</p>
       </div>
 
-      <p>{{ episode.description }}</p>
     </div>
 
     <v-dialog
@@ -137,11 +138,7 @@ export default {
 }
 </script>
 
-<style scoped>
-h2, h3 {
-  text-align: left;
-}
-
+<style lang="scss" scoped>
 p {
   margin-top: 0;
 }
@@ -150,13 +147,24 @@ input {
   margin: 10px 0;
 }
 
-h2 {
-  margin-top: 30px;
+.podcast__sign-in {
+  margin-top: 3em;
+  height: 100px;
+}
+.podcast__link {
+  color: #563a92;
 }
 
 .episode {
   background: rgba(255, 255, 255, 0.4);
   padding: 15px;
+  display: flex;
+  align-items: center;
+
+  &__img {
+    height: 180px;
+    margin-right: 10px;
+   }
 }
 
 .episode p {
@@ -178,5 +186,19 @@ h2 {
   text-transform: uppercase;
   font-size: 0.9em;
   margin-left: 15px;
+}
+
+@media only screen and (max-width: 768px)
+{
+  .episode {
+    flex-direction: column;
+
+    &__img {
+      margin-right: 0;
+      margin-bottom: 10px;
+      height: 180px;
+      width: 180px;
+    }
+  }
 }
 </style>

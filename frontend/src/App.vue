@@ -2,14 +2,16 @@
   <v-app>
     <NavBar />
     <div class="wrapper">
-      <router-link
-        tag="img"
-        to="/"
-        src="/images/logo.svg"
-        alt="Netlight Podcasts"
-        class="logo"
-      />
-      <router-view class="content" />
+      <div class="content">
+        <router-link
+          tag="img"
+          to="/"
+          :src="require('@/assets/logo-netlight-stories--dark.png')"
+          alt="Netlight Stories"
+          class="logo"
+        />
+        <router-view />
+      </div>
     </div>
   </v-app>
 </template>
@@ -24,36 +26,31 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.logo, .content {
   width: 100%;
+  background-color: rgba(249, 249, 249, 0.9);
 }
 
 .logo {
-  cursor: pointer;
+  width: min(80%, 1024px);
   display: block;
-  width: min(80%, 500px);
-  filter: drop-shadow(0 0 1px #666666);
-  padding: 2em;
+  margin: auto
 }
 
 .content {
-  margin-top: 2em;
-  margin-bottom: 20vh;
-  width: min(80%, 800px);
+  margin: 0 auto;
   font-family: 'proxima_novaregular';
-  background-color: rgba(249, 249, 249, 0.7);
 	padding: 2em;
-  box-shadow: 0 0 30px rgba(166, 162, 220, 0.7);
+  width: min(100%, 780px);
+  text-align: center;
 }
+
 
 @media only screen and (max-width: 768px)
 {
