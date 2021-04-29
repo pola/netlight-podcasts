@@ -286,7 +286,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 	rssLines.push('</channel>')
 	rssLines.push('</rss>')
 	
-	res.set('content-type', 'text/xml')
+	res.set('content-type', 'application/rss+xml')
 	res.send(rssLines.join('\n'))
 
 	log.savePodcastTokenRss(req, token)
