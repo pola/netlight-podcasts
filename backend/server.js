@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const OIDCStrategy = require('passport-azure-ad').OIDCStrategy
+const sendSeekable = require('send-seekable')
 
 const log = require('./log')
 const common = require('./common')
@@ -291,6 +292,8 @@ app.get('/rss/:token.xml', async (req, res) => {
 	log.savePodcastTokenRss(req, token)
 })
 
+app.use(sendSeekable)
+
 app.get('/audio/:token/:slug', async (req, res) => {
 	const token = req.params.token
 	const podcast = await getPodcastByToken(token)
@@ -319,12 +322,12 @@ app.get('/audio/:token/:slug', async (req, res) => {
 
 	const episode = episodes[0]
 
-	res.writeHead(200, {
-		'content-type': episode.fileMimeType,
-		'content-length': episode.fileSize,
+	res.sendSeekable(Buffer.from(episode.fileContent), {
+		config: {
+			length: episode.fileSize,
+			type: episode.fileMimeType,
+		},
 	})
-
-	res.end(episode.fileContent)
 
 	log.savePodcastTokenAudio(req, token, episode.id)
 })
