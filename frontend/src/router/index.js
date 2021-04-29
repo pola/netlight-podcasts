@@ -14,9 +14,9 @@ export const ROUTE_NAMES = {
 
 const routes = [
   { path: '/', redirect: { name: ROUTE_NAMES.SINGLE,  params: { slug: 'netlight-stories' }}},
+  { path: '/guide', component: GuideView, name: ROUTE_NAMES.GUIDE },
   { path: '/:slug', component: PodcastSingleView, name: ROUTE_NAMES.SINGLE },
   { path: '/:slug/new-episode', component: UploadNewEpisodeView, name: ROUTE_NAMES.UPLOAD },
-  { path: '/guide', component: GuideView, name: ROUTE_NAMES.GUIDE },
 ]
 
 const router = new VueRouter({
