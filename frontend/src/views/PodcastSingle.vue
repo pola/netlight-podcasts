@@ -12,20 +12,20 @@
     <h2>Tune in</h2>
     <p>Use the link below to tune in to the podcast in your favourite application.</p>
 
-      <input
-          id="link-input"
-          class="podcast__link"
-          type="text"
-          :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
-          @focus="e => e.target.select()"
-          readonly
-      />
-      <v-btn
-          @click="copyToClipboard"
-          small
-      >
-        Copy link
-      </v-btn>
+    <input
+      id="link-input"
+      class="podcast__link"
+      type="text"
+      :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
+      @focus="e => e.target.select()"
+      readonly
+    />
+    <v-btn
+      @click="copyToClipboard"
+      small
+    >
+      Copy link
+    </v-btn>
 
 
     <div>
@@ -33,8 +33,8 @@
         Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
       </p>
       <v-btn
-          @click="confirmTokenRefreshDialog = true"
-          small
+        @click="confirmTokenRefreshDialog = true"
+        small
       >
         Generate new link
       </v-btn>
@@ -152,9 +152,6 @@ export default {
 
       /* Copy the text inside the text field */
       document.execCommand('copy')
-
-      /* Alert the copied text */
-      alert('Copied the text: ' + copyText.value)
     }
   },
 
