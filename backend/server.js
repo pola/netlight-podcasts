@@ -263,7 +263,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 	rssLines.push('<itunes:email>martin.pola@netlight.com</itunes:email>')
 	rssLines.push('</itunes:owner>')
 	rssLines.push('<itunes:explicit>no</itunes:explicit>')
-	rssLines.push('<itunes:image href="https://podcasts.netlight.com/images/podcast-logo.png" />')
+	rssLines.push('<itunes:image href="https://podcasts.netlight.com/images/netlight-stories-logo.png" />')
 	rssLines.push('<itunes:category text="Business" />')
 
 	for (const episode of episodes) {
