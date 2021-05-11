@@ -57,6 +57,11 @@
           class="episode__img"
           :src="require('@/assets/profile-ivan.png')"
       />
+      <img
+          v-if="episode.title.includes('Sofia')"
+          class="episode__img"
+          :src="require('@/assets/profile-sofia.png')"
+      />
       <div>
         <div class="header">
           <h3>{{ episode.title }}</h3>
