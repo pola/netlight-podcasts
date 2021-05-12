@@ -48,19 +48,19 @@
       v-for="episode in podcast.episodes"
     >
       <img
-          v-if="episode.title.includes('Kim')"
+        v-if="episode.title.includes('Kim')"
         class="episode__img"
         :src="require('@/assets/profile-kim.png')"
       />
       <img
-          v-if="episode.title.includes('Ivan')"
-          class="episode__img"
-          :src="require('@/assets/profile-ivan.png')"
+        v-if="episode.title.includes('Ivan')"
+        class="episode__img"
+        :src="require('@/assets/profile-ivan.png')"
       />
       <img
-          v-if="episode.title.includes('Sofia')"
-          class="episode__img"
-          :src="require('@/assets/profile-sofia.png')"
+        v-if="episode.title.includes('Sofia')"
+        class="episode__img"
+        :src="require('@/assets/profile-sofia.png')"
       />
       <div>
         <div class="header">
