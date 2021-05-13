@@ -176,8 +176,7 @@ export default {
   async created() {
     if (this.isLoggedIn) {
       this.podcast = await getPodcast(this.$route.params.slug)
-      this.podcast.episodes.sort((a, b) => a.published - b.published)
-
+      this.podcast.episodes.sort((a, b) => b.published - a.published)
     }
   },
 }
