@@ -71,6 +71,13 @@
         </div>
 
         <p>{{ episode.description }}</p>
+
+        <audio controls>
+          <source
+            :src="'/audio/' + podcast.token + '/' + episode.slug"
+            :type="episode.fileMimeType"
+          />
+        </audio>
       </div>
     </div>
 
@@ -196,6 +203,7 @@ p {
   padding: 15px;
   display: flex;
   align-items: center;
+  text-align: left;
 
   &__img {
     height: 180px;
@@ -217,11 +225,19 @@ p {
   padding-bottom: 10px;
 }
 
+.episode .header h3 {
+  text-align: left;
+}
+
 .episode .header .meta {
   color: #666666;
   text-transform: uppercase;
   font-size: 0.9em;
   margin-left: 15px;
+}
+
+.episode audio {
+  margin-top: 10px;
 }
 
 @media only screen and (max-width: 768px)
@@ -235,6 +251,10 @@ p {
       height: 180px;
       width: 180px;
     }
+  }
+
+  .episode audio {
+    width: 100%;
   }
 }
 </style>
