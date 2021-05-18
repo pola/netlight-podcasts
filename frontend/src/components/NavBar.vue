@@ -30,6 +30,10 @@
           title="Sign out"
           @click="signOut"
         />
+        <NavBarItem
+          title="About Netlight Stories"
+          @click="about"
+        />
       </template>
     </div>
   </div>
@@ -72,6 +76,10 @@ name: 'NavBar',
     async guide() {
         this.$router.push({name: ROUTE_NAMES.GUIDE})
     },
+    async about() {
+        this.$router.push({name: ROUTE_NAMES.ABOUT})
+
+},
     goToUpload() {
       this.$router.push({name: ROUTE_NAMES.UPLOAD, params: { slug: 'netlight-stories' }})
     },
