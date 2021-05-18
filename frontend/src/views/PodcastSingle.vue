@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!isLoggedIn" class="podcast__sign-in">
+  <div
+    v-if="!isLoggedIn"
+    class="podcast__sign-in"
+  >
     <p style="text-align: center;">
       To see this content, please <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">sign in</a> with your Netlight account.
     </p>
@@ -10,22 +13,33 @@
     <p>Use the link below to tune in to the podcast in your favourite application.</p>
 
     <input
+      id="link-input"
       class="podcast__link"
       type="text"
       :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
       @focus="e => e.target.select()"
       readonly
     />
-      
-    <p>
-      Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
+    <v-btn
+      @click="copyToClipboard"
+      small
+    >
+      Copy link
+    </v-btn>
+
+
+    <div>
+      <p>
+        Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
+      </p>
       <v-btn
         @click="confirmTokenRefreshDialog = true"
         small
       >
         Generate new link
       </v-btn>
-    </p>
+    </div>
+
 
     <h2>Episodes</h2>
     <div
@@ -33,7 +47,21 @@
       :key="episode.slug"
       v-for="episode in podcast.episodes"
     >
-      <img class="episode__img" :src="require('@/assets/profile-kim.png')"/>
+      <img
+        v-if="episode.title.includes('Kim')"
+        class="episode__img"
+        :src="require('@/assets/profile-kim.png')"
+      />
+      <img
+        v-if="episode.title.includes('Ivan')"
+        class="episode__img"
+        :src="require('@/assets/profile-ivan.png')"
+      />
+      <img
+        v-if="episode.title.includes('Sofia')"
+        class="episode__img"
+        :src="require('@/assets/profile-sofia.png')"
+      />
       <div>
         <div class="header">
           <h3>{{ episode.title }}</h3>
@@ -43,8 +71,14 @@
         </div>
 
         <p>{{ episode.description }}</p>
-      </div>
 
+        <audio controls>
+          <source
+            :src="'/audio/' + podcast.token + '/' + episode.slug"
+            :type="episode.fileMimeType"
+          />
+        </audio>
+      </div>
     </div>
 
     <v-dialog
@@ -125,14 +159,24 @@ export default {
       }
 
       this.isRefreshingToken = false
+    },
+    copyToClipboard() {
+      /* Get the text field */
+      var copyText = document.getElementById('link-input')
+
+      /* Select the text field */
+      copyText.select()
+      copyText.setSelectionRange(0, 99999) /* For mobile devices */
+
+      /* Copy the text inside the text field */
+      document.execCommand('copy')
     }
   },
 
   async created() {
     if (this.isLoggedIn) {
       this.podcast = await getPodcast(this.$route.params.slug)
-      this.podcast.episodes.sort((a, b) => a.published - b.published)
-
+      this.podcast.episodes.sort((a, b) => b.published - a.published)
     }
   },
 }
@@ -140,12 +184,9 @@ export default {
 
 <style lang="scss" scoped>
 p {
-  margin-top: 0;
+  margin: 10px;
 }
 
-input {
-  margin: 10px 0;
-}
 
 .podcast__sign-in {
   margin-top: 3em;
@@ -153,6 +194,7 @@ input {
 }
 .podcast__link {
   color: #563a92;
+  text-align: center;
 }
 
 .episode {
@@ -160,6 +202,7 @@ input {
   padding: 15px;
   display: flex;
   align-items: center;
+  text-align: left;
 
   &__img {
     height: 180px;
@@ -172,7 +215,7 @@ input {
 }
 
 .episode p {
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .episode .header {
@@ -181,11 +224,19 @@ input {
   padding-bottom: 10px;
 }
 
+.episode .header h3 {
+  text-align: left;
+}
+
 .episode .header .meta {
   color: #666666;
   text-transform: uppercase;
   font-size: 0.9em;
   margin-left: 15px;
+}
+
+.episode audio {
+  margin-top: 10px;
 }
 
 @media only screen and (max-width: 768px)
@@ -199,6 +250,10 @@ input {
       height: 180px;
       width: 180px;
     }
+  }
+
+  .episode audio {
+    width: 100%;
   }
 }
 </style>
