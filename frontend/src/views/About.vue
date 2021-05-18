@@ -2,7 +2,7 @@
   <div>
     <h2>About Netlight Stories</h2>
     <h3>Interested in sharing your story?</h3>
-    If you are interested in sharing your story or know someone you would like  to hear a story from, please reach out to us! You can either dm Linnea Dahl or Katarina Bergbom in Slack.
+    <p>If you are interested in sharing your story or know someone you would like  to hear a story from, please reach out to us! You can either dm Linnea Dahl or Katarina Bergbom in Slack.</p>
     <p></p>
     <h3>Special thanks to...</h3>
     <p>
