@@ -57,7 +57,8 @@ const getPodcastBySlug = async (slug, username, withEpisodes = true) => {
 				`title`, \
 				`description`, \
 				`duration`, \
-				`published` \
+				`published`, \
+				`fileMimeType` \
 			FROM `podcastEpisode` \
 			WHERE `podcast` = ? AND `published` IS NOT NULL AND `published` < ? AND `isVisible` = ?',
 			[podcast.id, common.getTimestamp(), true]

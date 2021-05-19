@@ -48,19 +48,19 @@
       v-for="episode in podcast.episodes"
     >
       <img
-          v-if="episode.title.includes('Kim')"
+        v-if="episode.title.includes('Kim')"
         class="episode__img"
         :src="require('@/assets/profile-kim.png')"
       />
       <img
-          v-if="episode.title.includes('Ivan')"
-          class="episode__img"
-          :src="require('@/assets/profile-ivan.png')"
+        v-if="episode.title.includes('Ivan')"
+        class="episode__img"
+        :src="require('@/assets/profile-ivan.png')"
       />
       <img
-          v-if="episode.title.includes('Sofia')"
-          class="episode__img"
-          :src="require('@/assets/profile-sofia.png')"
+        v-if="episode.title.includes('Sofia')"
+        class="episode__img"
+        :src="require('@/assets/profile-sofia.png')"
       />
       <img
           v-if="episode.title.includes('Johanna')"
@@ -76,6 +76,13 @@
         </div>
 
         <p>{{ episode.description }}</p>
+
+        <audio controls>
+          <source
+            :src="'/audio/' + podcast.token + '/' + episode.slug"
+            :type="episode.fileMimeType"
+          />
+        </audio>
       </div>
     </div>
 
@@ -174,8 +181,7 @@ export default {
   async created() {
     if (this.isLoggedIn) {
       this.podcast = await getPodcast(this.$route.params.slug)
-      this.podcast.episodes.sort((a, b) => a.published - b.published)
-
+      this.podcast.episodes.sort((a, b) => b.published - a.published)
     }
   },
 }
@@ -201,6 +207,7 @@ p {
   padding: 15px;
   display: flex;
   align-items: center;
+  text-align: left;
 
   &__img {
     height: 180px;
@@ -222,11 +229,19 @@ p {
   padding-bottom: 10px;
 }
 
+.episode .header h3 {
+  text-align: left;
+}
+
 .episode .header .meta {
   color: #666666;
   text-transform: uppercase;
   font-size: 0.9em;
   margin-left: 15px;
+}
+
+.episode audio {
+  margin-top: 10px;
 }
 
 @media only screen and (max-width: 768px)
@@ -240,6 +255,10 @@ p {
       height: 180px;
       width: 180px;
     }
+  }
+
+  .episode audio {
+    width: 100%;
   }
 }
 </style>

@@ -1,5 +1,10 @@
 <template>
-  <p class="nav-bar-item" @click="$emit('click')">{{ title }}</p>
+  <p
+    class="nav-bar-item"
+    @click="$emit('click')"
+  >
+    {{ title }}
+  </p>
 </template>
 
 <script>
