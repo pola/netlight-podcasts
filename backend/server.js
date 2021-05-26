@@ -278,6 +278,7 @@ app.get('/rss/:token.xml', async (req, res) => {
 		rssLines.push('<pubDate>' + (new Date(episode.published * 1000)).toUTCString() + '</pubDate>')
 		rssLines.push('<itunes:author>Netlight Podcasts</itunes:author>')
 		rssLines.push('<itunes:duration>' + common.duration2itunes(episode.duration) + '</itunes:duration>')
+		rssLines.push('<itunes:summary>The Netlight Stories podcast</itunes:summary>')
 		rssLines.push('<itunes:explicit>no</itunes:explicit>')
 		rssLines.push('<guid>https://podcasts.netlight.com/' + podcast.slug + '/' + episode.slug + '</guid>')
 		rssLines.push('</item> ')
