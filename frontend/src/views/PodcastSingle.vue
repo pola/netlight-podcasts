@@ -62,6 +62,26 @@
         class="episode__img"
         :src="require('@/assets/profile-sofia.png')"
       />
+      <img
+          v-if="episode.title.includes('Christian')"
+          class="episode__img"
+          :src="require('@/assets/profile-johanna-christian.png')"
+      />
+      <img
+          v-if="episode.title.includes('Johan went')"
+          class="episode__img"
+          :src="require('@/assets/profile-johan.png')"
+      />
+      <img
+          v-if="episode.title.includes('Anna')"
+          class="episode__img"
+          :src="require('@/assets/profile-anna.png')"
+      />
+      <img
+          v-if="episode.title.includes('Lena')"
+          class="episode__img"
+          :src="require('@/assets/profile-lena.png')"
+      />
       <div>
         <div class="header">
           <h3>{{ episode.title }}</h3>
