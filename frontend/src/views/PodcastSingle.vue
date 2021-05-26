@@ -68,7 +68,7 @@
           :src="require('@/assets/profile-johanna-christian.png')"
       />
       <img
-          v-if="episode.title.includes('Johan')"
+          v-if="episode.title.includes('Johan went')"
           class="episode__img"
           :src="require('@/assets/profile-johan.png')"
       />
