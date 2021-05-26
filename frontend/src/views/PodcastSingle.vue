@@ -63,7 +63,7 @@
         :src="require('@/assets/profile-sofia.png')"
       />
       <img
-          v-if="episode.title.includes('Johanna')"
+          v-if="episode.title.includes('Christian')"
           class="episode__img"
           :src="require('@/assets/profile-johanna-christian.png')"
       />
