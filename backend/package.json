@@ -4,15 +4,15 @@
   "description": "Backend for https://podcasts.netlight.com/.",
   "main": "index.js",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "cookie-parser": "^1.4.5",
-    "express": "^4.17.1",
-    "express-session": "^1.17.1",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
     "file-type": "^16.3.0",
     "method-override": "^3.0.0",
-    "mysql2": "^2.2.5",
-    "passport": "^0.4.1",
-    "passport-azure-ad": "^4.3.0",
+    "mysql2": "^2.3.3",
+    "passport": "^0.6.0",
+    "passport-azure-ad": "^4.3.3",
     "send-seekable": "^1.0.4"
   },
   "scripts": {

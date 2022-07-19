@@ -4,25 +4,29 @@ module.exports = {
     node: true,
   },
   extends: [
-    'eslint:recommended',
-    'plugin:vue/essential',
-    'plugin:vue/strongly-recommended',
+    "eslint:recommended",
+    "plugin:vue/essential",
+    "plugin:vue/strongly-recommended",
     // 'plugin:vue/recommended'
   ],
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    quotes: [2, 'single', 'avoid-escape'],
-    semi: [2, 'never'],
-    'vue/html-self-closing': ['error', {
-      html: {
-        void: 'always',
-        normal: 'always',
-        component: 'always',
+    "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
+    quotes: [2, "single", "avoid-escape"],
+    semi: [2, "never"],
+    "vue/multi-word-component-names": "off",
+    "vue/html-self-closing": [
+      "error",
+      {
+        html: {
+          void: "always",
+          normal: "always",
+          component: "always",
+        },
       },
-    }],
+    ],
   },
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: "@babel/eslint-parser",
   },
-}
+};
