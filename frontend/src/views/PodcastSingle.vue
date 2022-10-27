@@ -55,7 +55,7 @@
     >
       <img
         class="episode__img"
-        :src="require(getEpisodeImgAsset(episode))"
+        :src="getEpisodeImgAsset(episode)"
       />
       <div>
         <div class="header">
@@ -173,23 +173,23 @@ export default {
     getEpisodeImgAsset(episode) {
       // TODO: This should be refactored and have links to the img in the database :D
       const titleAssets = [
-        { title: 'Sofia', asset: '@/assets/profile-sofia.png' },
-        { title: 'Christian', asset: '@/assets/profile-johanna-christian.png' },
-        { title: 'Johan went', asset: '@/assets/profile-johan.png' },
-        { title: 'Anna', asset: '@/assets/profile-anna.png' },
-        { title: 'Lena', asset: '@/assets/profile-lena.png' },
-        { title: 'Cagla', asset: '@/assets/profile-cagla.png' },
-        { title: 'Kim', asset: '@/assets/profile-kim.png' },
-        { title: 'Ivan', asset: '@/assets/profile-ivan.png' },
-        { title: 'Viktor', asset: '@/assets/profile-viktor.png' },
-        { title: 'Ulrika', asset: '@/assets/profile-ulrika.png' },
-        { title: 'Witt', asset: '@/assets/profile-witt-hanna.png' },
+        { title: 'Sofia', asset: 'profile-sofia.png' },
+        { title: 'Christian', asset: 'profile-johanna-christian.png' },
+        { title: 'Johan went', asset: 'profile-johan.png' },
+        { title: 'Anna', asset: 'profile-anna.png' },
+        { title: 'Lena', asset: 'profile-lena.png' },
+        { title: 'Cagla', asset: 'profile-cagla.png' },
+        { title: 'Kim', asset: 'profile-kim.png' },
+        { title: 'Ivan', asset: 'profile-ivan.png' },
+        { title: 'Viktor', asset: 'profile-viktor.png' },
+        { title: 'Ulrika', asset: 'profile-ulrika.png' },
+        { title: 'Witt', asset: 'profile-witt-hanna.png' },
       ]
 
       const titleAsset = titleAssets.find(({ title }) =>
         episode.title.includes(title)
       )
-      return titleAsset?.asset || '@/assets/stories.pngj'
+      return require('@/assets/'+ titleAsset?.asset) || require('@/assets/stories.png')
     },
   },
 
