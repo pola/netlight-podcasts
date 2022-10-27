@@ -1,16 +1,16 @@
 <template>
-  <div class='edit'>
+  <div class="edit">
     upload new
-    {{episode}}
+    {{ episode }}
     <v-textarea
       outlined
       name="episode_title"
       label="Episode title"
       value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
-  ></v-textarea>
-  <v-btn block>
-    Update
-  </v-btn>
+    />
+    <v-btn block>
+      Update
+    </v-btn>
   </div>
 </template>
 

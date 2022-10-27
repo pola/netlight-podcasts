@@ -4,20 +4,27 @@
     class="podcast__sign-in"
   >
     <p style="text-align: center;">
-      To see this content, please <a :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)">sign in</a> with your Netlight account.
+      To see this content, please
+      <a
+        :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)"
+      >sign in</a>
+      with your Netlight account.
     </p>
   </div>
-  
+
   <div v-else-if="podcast !== null">
     <h2>Tune in</h2>
-    <p>Use the link below to tune in to the podcast in your favourite application.</p>
+    <p>
+      Use the link below to tune in to the podcast in your favourite
+      application.
+    </p>
 
     <input
       id="link-input"
       class="podcast__link"
       type="text"
       :value="'https://podcasts.netlight.com/rss/' + podcast.token + '.xml'"
-      @focus="e => e.target.select()"
+      @focus="(e) => e.target.select()"
       readonly
     />
     <v-btn
@@ -27,10 +34,10 @@
       Copy link
     </v-btn>
 
-
     <div>
       <p>
-        Note that the link is <strong>personal</strong> and <strong>should be kept secret</strong>.
+        Note that the link is <strong>personal</strong> and
+        <strong>should be kept secret</strong>.
       </p>
       <v-btn
         @click="confirmTokenRefreshDialog = true"
@@ -40,7 +47,6 @@
       </v-btn>
     </div>
 
-
     <h2>Episodes</h2>
     <div
       class="episode"
@@ -48,50 +54,15 @@
       v-for="episode in podcast.episodes"
     >
       <img
-        v-if="episode.title.includes('Kim')"
         class="episode__img"
-        :src="require('@/assets/profile-kim.png')"
-      />
-      <img
-        v-if="episode.title.includes('Ivan')"
-        class="episode__img"
-        :src="require('@/assets/profile-ivan.png')"
-      />
-      <img
-        v-if="episode.title.includes('Sofia')"
-        class="episode__img"
-        :src="require('@/assets/profile-sofia.png')"
-      />
-      <img
-          v-if="episode.title.includes('Christian')"
-          class="episode__img"
-          :src="require('@/assets/profile-johanna-christian.png')"
-      />
-      <img
-          v-if="episode.title.includes('Johan went')"
-          class="episode__img"
-          :src="require('@/assets/profile-johan.png')"
-      />
-      <img
-          v-if="episode.title.includes('Anna')"
-          class="episode__img"
-          :src="require('@/assets/profile-anna.png')"
-      />
-      <img
-          v-if="episode.title.includes('Lena')"
-          class="episode__img"
-          :src="require('@/assets/profile-lena.png')"
-      />
-      <img
-          v-if="episode.title.includes('Cagla')"
-          class="episode__img"
-          :src="require('@/assets/profile-cagla.png')"
+        :src="require(getEpisodeImgAsset(episode))"
       />
       <div>
         <div class="header">
           <h3>{{ episode.title }}</h3>
           <div class="meta">
-            {{ episode.published | moment('ll') }} • {{ Math.floor(episode.duration / 60) }} min
+            {{ episode.published | moment("ll") }} •
+            {{ Math.floor(episode.duration / 60) }} min
           </div>
         </div>
 
@@ -116,7 +87,8 @@
         </v-card-title>
 
         <v-card-text>
-          When you generate a new link, your current link will stop working. Confirm that this is what you want to do.
+          When you generate a new link, your current link will stop working.
+          Confirm that this is what you want to do.
         </v-card-text>
 
         <v-card-actions>
@@ -150,7 +122,7 @@
 
 <script>
 import axios from 'axios'
-import {getPodcast} from '@/utils/api'
+import { getPodcast } from '@/utils/api'
 
 export default {
   name: 'ListView',
@@ -159,7 +131,7 @@ export default {
       return this.$store.state.user !== null
     }
   },
-  
+
   data: () => ({
     podcast: null,
     confirmTokenRefreshDialog: false,
@@ -172,9 +144,11 @@ export default {
       this.isRefreshingToken = true
 
       try {
-        const podcast = (await axios.patch('/podcasts/' + this.podcast.slug, {
-          token: null,
-        })).data
+        const podcast = (
+          await axios.patch('/podcasts/' + this.podcast.slug, {
+            token: null,
+          })
+        ).data
 
         this.podcast.token = podcast.token
         this.confirmTokenRefreshDialog = false
@@ -195,7 +169,28 @@ export default {
 
       /* Copy the text inside the text field */
       document.execCommand('copy')
-    }
+    },
+    getEpisodeImgAsset(episode) {
+      // TODO: This should be refactored and have links to the img in the database :D
+      const titleAssets = [
+        { title: 'Sofia', asset: '@/assets/profile-sofia.png' },
+        { title: 'Christian', asset: '@/assets/profile-johanna-christian.png' },
+        { title: 'Johan went', asset: '@/assets/profile-johan.png' },
+        { title: 'Anna', asset: '@/assets/profile-anna.png' },
+        { title: 'Lena', asset: '@/assets/profile-lena.png' },
+        { title: 'Cagla', asset: '@/assets/profile-cagla.png' },
+        { title: 'Kim', asset: '@/assets/profile-kim.png' },
+        { title: 'Ivan', asset: '@/assets/profile-ivan.png' },
+        { title: 'Viktor', asset: '@/assets/profile-viktor.png' },
+        { title: 'Ulrika', asset: '@/assets/profile-ulrika.png' },
+        { title: 'Witt', asset: '@/assets/profile-witt-hanna.png' },
+      ]
+
+      const titleAsset = titleAssets.find(({ title }) =>
+        episode.title.includes(title)
+      )
+      return titleAsset?.asset || '@/assets/stories.pngj'
+    },
   },
 
   async created() {
@@ -211,7 +206,6 @@ export default {
 p {
   margin: 10px;
 }
-
 
 .podcast__sign-in {
   margin-top: 3em;
@@ -232,7 +226,7 @@ p {
   &__img {
     height: 180px;
     margin-right: 10px;
-   }
+  }
 }
 
 .episode p {
@@ -264,8 +258,7 @@ p {
   margin-top: 10px;
 }
 
-@media only screen and (max-width: 768px)
-{
+@media only screen and (max-width: 768px) {
   .episode {
     flex-direction: column;
 

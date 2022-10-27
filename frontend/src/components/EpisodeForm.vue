@@ -1,8 +1,7 @@
 <template>
-<form>
+  <form>
   <!--TOOD: name, slug (auto generate default from name??, description, (calc duration & file size), file, published (konvertera till sekunder), (isHidden??)-->
-
-</form>
+  </form>
 </template>
 
 <script>
