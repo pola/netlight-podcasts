@@ -1,13 +1,11 @@
 <template>
-  <div
-    v-if="!isLoggedIn"
-    class="podcast__sign-in"
-  >
-    <p style="text-align: center;">
+  <div v-if="!isLoggedIn" class="podcast__sign-in">
+    <p style="text-align: center">
       To see this content, please
       <a
         :href="'/login?target=' + encodeURIComponent($router.currentRoute.path)"
-      >sign in</a>
+        >sign in</a
+      >
       with your Netlight account.
     </p>
   </div>
@@ -27,22 +25,14 @@
       @focus="(e) => e.target.select()"
       readonly
     />
-    <v-btn
-      @click="copyToClipboard"
-      small
-    >
-      Copy link
-    </v-btn>
+    <v-btn @click="copyToClipboard" small> Copy link </v-btn>
 
     <div>
       <p>
         Note that the link is <strong>personal</strong> and
         <strong>should be kept secret</strong>.
       </p>
-      <v-btn
-        @click="confirmTokenRefreshDialog = true"
-        small
-      >
+      <v-btn @click="confirmTokenRefreshDialog = true" small>
         Generate new link
       </v-btn>
     </div>
@@ -53,10 +43,7 @@
       :key="episode.slug"
       v-for="episode in podcast.episodes"
     >
-      <img
-        class="episode__img"
-        :src="getEpisodeImgAsset(episode)"
-      />
+      <img class="episode__img" :src="getEpisodeImgAsset(episode)" />
       <div>
         <div class="header">
           <h3>{{ episode.title }}</h3>
@@ -77,14 +64,9 @@
       </div>
     </div>
 
-    <v-dialog
-      v-model="confirmTokenRefreshDialog"
-      max-width="600"
-    >
+    <v-dialog v-model="confirmTokenRefreshDialog" max-width="600">
       <v-card>
-        <v-card-title>
-          Generate new link
-        </v-card-title>
+        <v-card-title> Generate new link </v-card-title>
 
         <v-card-text>
           When you generate a new link, your current link will stop working.
@@ -93,10 +75,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            text
-            @click="confirmTokenRefreshDialog = false"
-          >
+          <v-btn text @click="confirmTokenRefreshDialog = false">
             Cancel
           </v-btn>
           <v-btn
@@ -110,26 +89,22 @@
       </v-card>
     </v-dialog>
 
-    <v-snackbar
-      v-model="refreshedSnackbar"
-      color="success"
-      :timeout="2000"
-    >
+    <v-snackbar v-model="refreshedSnackbar" color="success" :timeout="2000">
       Your link has been renewed.
     </v-snackbar>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import { getPodcast } from '@/utils/api'
+import axios from "axios";
+import { getPodcast } from "@/utils/api";
 
 export default {
-  name: 'ListView',
+  name: "ListView",
   computed: {
     isLoggedIn() {
-      return this.$store.state.user !== null
-    }
+      return this.$store.state.user !== null;
+    },
   },
 
   data: () => ({
@@ -141,65 +116,68 @@ export default {
 
   methods: {
     async refreshToken() {
-      this.isRefreshingToken = true
+      this.isRefreshingToken = true;
 
       try {
         const podcast = (
-          await axios.patch('/podcasts/' + this.podcast.slug, {
+          await axios.patch("/podcasts/" + this.podcast.slug, {
             token: null,
           })
-        ).data
+        ).data;
 
-        this.podcast.token = podcast.token
-        this.confirmTokenRefreshDialog = false
-        this.refreshedSnackbar = true
+        this.podcast.token = podcast.token;
+        this.confirmTokenRefreshDialog = false;
+        this.refreshedSnackbar = true;
       } catch {
-        alert('Failed to refresh link.')
+        alert("Failed to refresh link.");
       }
 
-      this.isRefreshingToken = false
+      this.isRefreshingToken = false;
     },
     copyToClipboard() {
       /* Get the text field */
-      var copyText = document.getElementById('link-input')
+      var copyText = document.getElementById("link-input");
 
       /* Select the text field */
-      copyText.select()
-      copyText.setSelectionRange(0, 99999) /* For mobile devices */
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
 
       /* Copy the text inside the text field */
-      document.execCommand('copy')
+      document.execCommand("copy");
     },
     getEpisodeImgAsset(episode) {
       // TODO: This should be refactored and have links to the img in the database :D
       const titleAssets = [
-        { title: 'Sofia', asset: 'profile-sofia.png' },
-        { title: 'Christian', asset: 'profile-johanna-christian.png' },
-        { title: 'Johan went', asset: 'profile-johan.png' },
-        { title: 'Anna', asset: 'profile-anna.png' },
-        { title: 'Lena', asset: 'profile-lena.png' },
-        { title: 'Cagla', asset: 'profile-cagla.png' },
-        { title: 'Kim', asset: 'profile-kim.png' },
-        { title: 'Ivan', asset: 'profile-ivan.png' },
-        { title: 'Viktor', asset: 'profile-viktor.png' },
-        { title: 'Ulrika', asset: 'profile-ulrika.png' },
-        { title: 'Witt', asset: 'profile-witt-hanna.png' },
-      ]
+        { title: "Sofia", asset: "profile-sofia.png" },
+        { title: "Christian", asset: "profile-johanna-christian.png" },
+        { title: "Johan went", asset: "profile-johan.png" },
+        { title: "Anna", asset: "profile-anna.png" },
+        { title: "Lena", asset: "profile-lena.png" },
+        { title: "Cagla", asset: "profile-cagla.png" },
+        { title: "Kim", asset: "profile-kim.png" },
+        { title: "Ivan", asset: "profile-ivan.png" },
+        { title: "Viktor", asset: "profile-viktor.png" },
+        { title: "Ulrika", asset: "profile-ulrika.png" },
+        { title: "Witt", asset: "profile-witt-hanna.png" },
+        { title: "Amsterdam", asset: "profile-amsterdam.png" },
+        { title: "Elisabeth", asset: "profile-elisabeth.png" },
+      ];
 
       const titleAsset = titleAssets.find(({ title }) =>
         episode.title.includes(title)
-      )
-      return require('@/assets/'+ titleAsset?.asset) || require('@/assets/stories.png')
+      );
+      const asset = titleAsset?.asset || "stories.png";
+      return require("@/assets/" + asset);
     },
   },
 
   async created() {
     if (this.isLoggedIn) {
-      this.podcast = await getPodcast(this.$route.params.slug)
-      this.podcast.episodes.sort((a, b) => b.published - a.published)
+      this.podcast = await getPodcast(this.$route.params.slug);
+      this.podcast.episodes.sort((a, b) => b.published - a.published);
     }
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
