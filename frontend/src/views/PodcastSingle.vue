@@ -151,7 +151,7 @@ export default {
         { title: "Sofia", asset: "profile-sofia.png" },
         { title: "Christian", asset: "profile-johanna-christian.png" },
         { title: "Johan went", asset: "profile-johan.png" },
-        { title: "Anna", asset: "profile-anna.png" },
+        { title: "Anna understood", asset: "profile-anna.png" },
         { title: "Lena", asset: "profile-lena.png" },
         { title: "Cagla", asset: "profile-cagla.png" },
         { title: "Kim", asset: "profile-kim.png" },
@@ -161,6 +161,7 @@ export default {
         { title: "Witt", asset: "profile-witt-hanna.png" },
         { title: "Amsterdam", asset: "profile-amsterdam.png" },
         { title: "Elisabeth", asset: "profile-elisabeth.png" },
+        { title: "Anna created", asset: "profile-anna-success.png" },
       ];
 
       const titleAsset = titleAssets.find(({ title }) =>
